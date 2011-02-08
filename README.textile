@@ -1,0 +1,25 @@
+h1. Javasquirrel
+
+*Version:* 0.0.1
+
+*License:* Dual licensed under:
+"MIT":http://www.opensource.org/licenses/mit-license.php
+"GPLv3":http://www.opensource.org/licenses/gpl-3.0.html
+
+*Author:* "Eric Garside":http://code.knewton.com/
+
+*Size:* ?K Closure Compiled, ?K Source
+
+h2. Overview
+
+An HTML5 game.
+
+h2. Browser Support
+
+IE7+, WebKit Browsers (Safari, Chrome), Firefox 2+
+
+h2. Changelog
+
+*Version 0.0.1*
+
+* Initial Release 
