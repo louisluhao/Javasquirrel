@@ -32,7 +32,7 @@
 			/**
 			 *	Game width.
 			 */
-			width: 640,
+			width: 700,
 			
 			/**
 			 *	Game height.
@@ -43,6 +43,11 @@
 			 *	Frames per second.
 			 */
 			fps: 50,
+			
+			/**
+			 *	The top of the floor.
+			 */
+			floor: 0,
 			
 			/**
 			 *	The player object
@@ -86,12 +91,12 @@
 			/**
 			 *	The unbuffed player run speed.
 			 */
-			base_run_speed: 4,
+			base_run_speed: 2,
 			
 			/**
 			 *	The current player run speed.
 			 */
-			current_run_speed: 4,
+			current_run_speed: 2,
 			
 			/**
 			 *	The unbuffed player jump height.
@@ -123,32 +128,26 @@
 			east: null,
 			north: null,
 			south: null,
-			obj: null,
 			
-			barrier: function(x, y, w, h, obj) {
-				if (!this.has("2D")){ 
+			barrier: function(x, y, w, h) {
+				if(!this.has("2D")){
 					this.addComponent("2D");
 				}
-				this.attr({x: x, y: y, w: w, h: h});
-				this.obj = obj;
+				this.attr({
+					x: x, 
+					y: y, 
+					w: w, 
+					h: h
+				});
+				
 				var self = this;
 				
-				this.north = Crafty.e("2D, hit").attr({x: x, y: y, w: w, h:1});
-				this.east = Crafty.e("2D, hit, collision").attr({x: x + w - 1, y: y, w: 1, h:h}).collision(obj, function() {
-					self.collide('e');
-				});
-				this.south = Crafty.e("2D, hit, collision").attr({x: x, y: y + h - 1, w: w, h: 30}).collision(obj, function() {
-					self.collide('s');
-				});
-				this.west = Crafty.e("2D, hit, collision").attr({x: x, y: y, w: 1, h:h}).collision(obj, function() {
-					self.collide('w');
-				});
+				this.west = Crafty.e("2D, hit, collision").attr({x: x, y: y, w: 1, h:h});
+				this.east = Crafty.e("2D, hit, collision").attr({x: x + w - 1, y: y, w: 1, h:h});
+				this.north = Crafty.e("2D, hit").attr({x: x, y: y, w: w, h:1})
+				this.south = Crafty.e("2D, hit, collision").attr({x: x, y: y + h - 1, w: w, h: 1});
 				
 				return this;
-			},
-			
-			collide: function(dir) {
-				this.obj.move(dir, 0);
 			}
 		});
 	}
@@ -172,10 +171,12 @@
 	 *	Generate the game floor.
 	 */
 	function generateFloor() {
+		GAME.floor = GAME.height - 30;
+	
 		Crafty.e("2D, canvas, floor, image, bottom, persist")
 			.attr({
 				x: 0,
-				y: GAME.height - 30, 
+				y: GAME.floor, 
 				w: GAME.width,
 				h: 30
 			})
@@ -227,7 +228,7 @@
 		/**
 		 *	Define the game's player.
 		 */
-		GAME.player = Crafty.e("2D, DOM, squirrel, gravity, controls, twoway, collision, animate, score, persist");
+		GAME.player = Crafty.e("2D, DOM, squirrel, gravity, controls, twoway, collision, animate, score, persist, hit, player");
 			
 		/**
 		 *	Configure the player.
@@ -238,7 +239,7 @@
 			 */
 			.attr({
 				y: GAME.height - 26,
-				x: (GAME.width / 2) - 32,
+				x: 32,
 				z: LAYERS.player,
 				facing: FACING.forward,
 				jumping: false,
@@ -380,10 +381,16 @@
 	 */
 	function generatePlatform(w, x, y) {
 		var barrier = Crafty.e("barrier, DOM, image")
-			.barrier(x, y, w, 25, GAME.player)
-			//.image("image/tile-ground.png", "repeat-x");
+			.barrier(x, y - 25, w, 25)
+			.image("image/tile-ground.png", "repeat-x");
+			
+		barrier.south
+			.collision()
+			.onhit("player", function () {
+				GAME.player.y = this.y;
+			});
 		
-		//barrier.north.addComponent("floor");
+		barrier.north.addComponent("floor");
 	}
 	
 	/**
@@ -395,7 +402,6 @@
 		generateFloor();
 		generatePlayer();
 		updatePlayerMovement();
-		
 		GAME.player.animate("rest_forward", 80);
 	}
 	
@@ -407,7 +413,10 @@
 	 *	The title screen.
 	 */
 	Crafty.scene("title", function() {
-		generatePlatform(100, 150, 300);
+		generatePlatform(GAME.width - 200, 200, GAME.floor - 50);
+		generatePlatform(GAME.width - 300, 300, GAME.floor - 125);
+		generatePlatform(GAME.width - 400, 400, GAME.floor - 200);
+		generatePlatform(GAME.width - 500, 500, GAME.floor - 275);
 	});
 	
 	//------------------------------
@@ -415,6 +424,8 @@
 	//	Startup
 	//
 	//------------------------------
+	
+	window.GAME = GAME;
 
 	$(function () {
 		Crafty.init(GAME.fps, GAME.width, GAME.height);

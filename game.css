@@ -17,7 +17,7 @@
 ----------------------------------*/
 
 #viewport-wrapper
-	{ width: 640px; height: 400px; margin: 75px auto 0; overflow: hidden; position: relative; }
+	{ width: 700px; height: 400px; margin: 75px auto 0; overflow: hidden; position: relative; }
 	
 #cr-stage
 	{ z-index: 500; }
@@ -29,4 +29,4 @@
 ----------------------------------*/
 
 #score
-	{ position: absolute; height: 110px; width: 90px; top: 5px; left: 5px; background: url(image/acorn-badge.png) no-repeat center center; font: bold 36px/140px GoodDogRegular; text-align: center; color: #FFF; }
+	{ position: absolute; height: 110px; width: 90px; top: 5px; left: 5px; background: url(image/acorn-badge.png) no-repeat center center; font: bold 36px/140px GoodDogRegular; text-align: center; color: #FFF; display: none; }
