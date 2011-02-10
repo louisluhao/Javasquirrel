@@ -35,11 +35,14 @@
 	{ position: absolute; top: 25px; left: 25px; font: bold 54px GoodDogRegular; color: #8C481D; text-shadow: #666 4px 4px 3px; }
 	
 .onscreen-menu
-	{ background: #FFF; position: absolute; z-index: 100; width: 400px; padding: 15px 30px; border-radius: 5px; left: 50%; top: 40px; margin-left: -250px; 
+	{ background: #FFF; position: absolute; z-index: 45; width: 400px; padding: 15px 30px; border-radius: 5px; left: 50%; top: 40px; margin-left: -250px; 
 	-moz-box-shadow: 3px 3px 6px -3px #666; -webkit-box-shadow: 2px 2px 4px #666; box-shadow: 3px 3px 6px -3px #666; font: bold 26px/32px GoodDogRegular; color: #1A1F1E; }
 	
 #title-screen
 	{ display: none; }
+	
+/*  Acorn meter
+----------------------------------*/
 	
 #acorn-meter
 	{ position: absolute; top: 5px; right: 15px; width: 120px; display: none; }
@@ -59,6 +62,48 @@
 #acorn-progress-bar
 	{ width: 0%; height: 12px; background: #DEB887; }
 	
+/*  Golden Acorn meter
+----------------------------------*/
+	
+#golden-acorn-meter
+	{ position: absolute; top: 45px; right: 15px; width: 120px; display: none; opacity: 0.25; }
+	
+#golden-acorn-icon-wrapper
+	{ width: 30px; height: 30px; border-radius: 20px; background: #FFE4B5; position: absolute; top: 0; left: 0; z-index: 10; }
+	
+#golden-acorn-icon-wrapper .golden-acorn-icon
+	{ margin: -2px 0 0 4px; }
+	
+#golden-acorn-progress-wrapper
+	{ width: 120px; height: 20px; border-radius: 20px; background: #FFE4B5; position: absolute; top: 5px; left: 5px; z-index: 5; }
+	
+#golden-acorn-progress-bar-wrapper
+	{ width: 85px; height: 12px; background: #FFF; margin: 4px 0 0 25px; box-shadow: inset 0 0 10px #000; -webkit-box-shadow: inset 0 0 5px #000; }
+	
+#golden-acorn-progress-bar
+	{ width: 0%; height: 12px; background: #EEC900; }
+	
+/*  Coffee meter
+----------------------------------*/
+	
+#coffee-meter
+	{ position: absolute; top: 85px; right: 15px; width: 120px; display: none; opacity: 0.25; }
+	
+#coffee-icon-wrapper
+	{ width: 30px; height: 30px; border-radius: 20px; background: #008B45; position: absolute; top: 0; left: 0; z-index: 10; }
+	
+#coffee-icon-wrapper .coffee-icon
+	{ margin: -8px 0 0 -12px; }
+	
+#coffee-progress-wrapper
+	{ width: 120px; height: 20px; border-radius: 20px; background: #008B45; position: absolute; top: 5px; left: 5px; z-index: 5; }
+	
+#coffee-progress-bar-wrapper
+	{ width: 85px; height: 12px; background: #5A331C; margin: 4px 0 0 25px; box-shadow: inset 0 0 10px #000; -webkit-box-shadow: inset 0 0 5px #000; }
+	
+#coffee-progress-bar
+	{ width: 0%; height: 12px; background: #C2AC73; }
+	
 /*  Assets
 ----------------------------------*/
 
@@ -67,6 +112,15 @@
 	
 .acorn-icon
 	{ width: 20px; height: 32px; float: left; margin: 0 5px 0 0; background: url(image/acorn.png) no-repeat center center; }
+	
+.acorn-pile-icon
+	{ width: 54px; height: 54px; float: left; margin: 0 5px 0 0; background: url(image/acorn-pile.png) no-repeat center center; }
+	
+.coffee-icon
+	{ width: 48px; height: 48px; float: left; margin: 0 5px 0 0; background: url(image/coffee-cup.png) no-repeat center center; }
+	
+.golden-acorn-icon
+	{ width: 20px; height: 32px; float: left; margin: 0 5px 0 0; background: url(image/golden-acorn.png) no-repeat center center; }
 	
 /*  Title Text
 ----------------------------------*/
@@ -78,16 +132,28 @@
 	{ bottom: 40px; left: 230px; color: #FFF; }
 	
 #spring-title
-	{ bottom: 115px; left: 330px; color: #FFF6CF; }
+	{ bottom: 115px; left: 330px; }
+	
+.spring-text
+	{ color: #FFF6CF; }
 	
 #summer-title
-	{ bottom: 190px; left: 430px; color: #F9E832; }
+	{ bottom: 190px; left: 430px; }
 	
-#fall-title
-	{ bottom: 265px; left: 530px; color: #ADB595; }
+.summer-text
+	{ color: #F9E832; }
+	
+#autumn-title
+	{ bottom: 265px; left: 530px; }
+	
+.autumn-text
+	{ color: #ADB595; }
 	
 #winter-title
-	{ bottom: 340px; left: 600px; color: #A1C4EE; }
+	{ bottom: 340px; left: 600px; }
+	
+.winter-text
+	{ color: #A1C4EE; }
 	
 /*  Introduction text
 ----------------------------------*/
@@ -100,3 +166,9 @@
 
 #introduction-prev
 	{ bottom: 40px; left: 20px; color: #FFF; }
+	
+#introduction-season-times
+	{ position: absolute; top: 150px; left: 120px; margin-top: 10px; font: bold 40px/22px GoodDogRegular; text-shadow: #333 2px 2px 0px; z-index: 500; }
+	
+#introduction-season-times li
+	{ float: left; width: 81px; margin-right: 43px; text-align: center; }
