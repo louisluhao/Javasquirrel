@@ -52,7 +52,22 @@
 			/**
 			 *	The player object
 			 */
-			player: undefined
+			player: undefined,
+			
+			/**
+			 *	Flag to determine if the game has been initialized.
+			 */
+			initialized: false,
+			
+			/**
+			 *	The maximum number of acorns to nom at once.
+			 */
+			max_nom_nom: 15,
+			
+			/**
+			 *	Flag to determine if the game is paused.
+			 */
+			pause: false
 		},
 
 	//------------------------------
@@ -91,22 +106,40 @@
 			/**
 			 *	The unbuffed player run speed.
 			 */
-			base_run_speed: 2,
+			base_run_speed: 3,
 			
 			/**
 			 *	The current player run speed.
 			 */
-			current_run_speed: 2,
+			current_run_speed: 3,
+			
+			/**
+			 *	The debuff associated with the number of acorns in the cheeks.
+			 */
+			acorn_cheeks_debuff: 0,
 			
 			/**
 			 *	The unbuffed player jump height.
 			 */
-			base_jump_height: 4,
+			base_jump_height: 8,
 			
 			/**
 			 *	The player run speed.
 			 */
-			current_jump_height: 4
+			current_jump_height: 8
+		},
+		
+	//------------------------------
+	//  Introduction
+	//------------------------------
+	
+		/**
+		 *	Introduction state object.
+		 */
+		introduction = {
+			enabled: false,
+			acorn_generated: false,
+			acorn_eaten: false
 		};
 	
 	//------------------------------
@@ -123,6 +156,55 @@
 	 *	Define reusable components.
 	 */
 	function defineComponents() {
+		//	Override twoway to add in pause functionality.
+		Crafty.components().twoway.twoway = function(speed,jump) {
+			if(speed) this._speed = speed;
+			this._jump = jump;
+			
+			var move = this.__move;
+			
+			this.bind("enterframe", function() {
+				if (GAME.pause) {
+					return;
+				}
+				
+				var old = this.pos(),
+					changed = false;
+				if(move.right) {
+					this.x += this._speed;
+					changed = true;
+				}
+				if(move.left) {
+					this.x -= this._speed;
+					changed = true;
+				}
+				if(move.up) {
+					this.y -= this._jump;
+					this._falling = true;
+					changed = true;
+				}
+			}).bind("keydown", function(e) {
+				if(e.keyCode === Crafty.keys.RA || e.keyCode === Crafty.keys.D) {
+					move.right = true;
+				}
+				if(e.keyCode === Crafty.keys.LA || e.keyCode === Crafty.keys.A) {
+					move.left = true;
+				}
+				if(e.keyCode === Crafty.keys.UA || e.keyCode === Crafty.keys.W) {
+					move.up = true;
+				}
+			}).bind("keyup", function(e) {
+				if(e.keyCode === Crafty.keys.RA || e.keyCode === Crafty.keys.D) {
+					move.right = false;
+				}
+				if(e.keyCode === Crafty.keys.LA || e.keyCode === Crafty.keys.A) {
+					move.left = false;
+				}
+			});
+			
+			return this;
+		};
+	
 		Crafty.c("barrier", {
 			west: null,
 			east: null,
@@ -150,6 +232,31 @@
 				return this;
 			}
 		});
+		
+		Crafty.c("player", {
+			//	The jump height
+			_jump: 0,
+			
+			//	The number of acorns in the player's cheeks.
+			cheeks: 0,
+			
+			//	Any temporary buffs for the player.
+			buffs: [],
+			
+			//	Eat an acorn.
+			eatAcorn: function () {
+				if (this.cheeks < GAME.max_nom_nom) {
+					this.cheeks += 1;
+					this.trigger("om-nom-nom");
+					
+					player_state.acorn_cheeks_debuff = (2 * (this.cheeks / GAME.max_nom_nom))
+					updatePlayerMovement();
+					return true;
+				}
+				
+				return false;
+			}
+		});
 	}
 	
 	//------------------------------
@@ -160,7 +267,42 @@
 	 *	Update the player movement using the new values.
 	 */
 	function updatePlayerMovement() {
-		GAME.player.twoway(player_state.current_run_speed, player_state.current_jump_height);
+		player_state.current_run_speed = player_state.base_run_speed - player_state.acorn_cheeks_debuff;
+		
+		GAME.player._jump = player_state.current_jump_height;
+		GAME.player._speed = player_state.current_run_speed;
+	}
+	
+	//------------------------------
+	//  Introduction scenes
+	//------------------------------
+	
+	/**
+	 *	Generate the acorn meter introduction.
+	 */
+	function acornMeterIntroduction() {
+		destroyIntroductionAssets();
+		
+		$("#introduction-acorn-meter, #acorn-meter, #introduction-next, #introduction-prev").show();
+	}
+	
+	//------------------------------
+	//  Meters
+	//------------------------------
+	
+	/**
+	 *	Flash the progress bar.
+	 */
+	function flashProgressBar() {
+		if (GAME.max_nom_nom !== GAME.player.cheeks) {
+			return;
+		}
+	
+		$("#acorn-progress-bar").fadeTo(750, 0.5, function () {
+			$("#acorn-progress-bar").fadeTo(750, 1.0, function () {
+				flashProgressBar();
+			});
+		});
 	}
 	
 	//------------------------------
@@ -242,8 +384,6 @@
 				x: 32,
 				z: LAYERS.player,
 				facing: FACING.forward,
-				jumping: false,
-				falling: false,
 				w: 32,
 				h: 26
 			})
@@ -254,6 +394,10 @@
 			 *	Player keybindings.
 			 */
 			.bind("keydown", function (event) {
+				if (GAME.pause) {
+					return;
+				}
+			
 				switch (event.keyCode) {
 				
 				case Crafty.keys.D:
@@ -300,6 +444,9 @@
 			 *	The keyup event.
 			 */
 			.bind("keyup", function (event) {
+				if (GAME.pause) {
+					return;
+				}
 				
 				switch (event.keyCode) {
 				
@@ -337,7 +484,26 @@
 			.animate.apply(GAME.player, animation.move_right)
 			.animate.apply(GAME.player, animation.rest_forward)
 			.animate.apply(GAME.player, animation.rest_left)
-			.animate.apply(GAME.player, animation.rest_right);
+			.animate.apply(GAME.player, animation.rest_right)
+			
+			/**
+			 *	Om nom nom nom nom nom nom.
+			 */
+			.bind("om-nom-nom", function () {
+				if (introduction.enabled && 
+						!introduction.acorn_eaten) {
+					introduction.acorn_eaten = true;
+					acornMeterIntroduction();
+				}
+				
+				var percent = Math.round((this.cheeks / GAME.max_nom_nom) * 100);
+				
+				$("#acorn-progress-bar").css("width", percent + "%");
+				
+				if (percent === 100) {
+					flashProgressBar();
+				}
+			});
 			
 		/**
 		 *	Render an animation every so often, to make the squirrel move.
@@ -383,12 +549,6 @@
 		var barrier = Crafty.e("barrier, DOM, image")
 			.barrier(x, y - 25, w, 25)
 			.image("image/tile-ground.png", "repeat-x");
-			
-		barrier.south
-			.collision()
-			.onhit("player", function () {
-				GAME.player.y = this.y;
-			});
 		
 		barrier.north.addComponent("floor");
 	}
@@ -400,22 +560,45 @@
 	 *
 	 *	@param scene	The scene to transition to on collision.
 	 *
+	 *	@param side		The side to reorient the player on.
+	 *
 	 *	@param y		Vertical offset. Defaults to 0.
 	 *
 	 *	@param h		The height. Defaults to screen height.
 	 */
-	function generateSceneProgression(x, scene, y, h) {
+	function generateSceneProgression(x, scene, side, y, h) {
+		if (x === 0) {
+			x = 10;
+		}
+	
 		Crafty.e("2D, hit, collision, DOM, color")//@debug: DOM,color
 			.attr({
-				x: x - 32,
+				x: x - 10,
 				y: y || 0,
-				w: 32,
+				w: 10,
 				h: h || GAME.height
 			})
 			.color("#F00")//@debug
 			.collision()
 			.onhit("player", function () {
 				Crafty.scene(scene);
+				
+				switch (side) {
+				
+				case "right":
+					resetPlayer("right");
+					break;
+					
+				case "tree":
+					GAME.player.x = 52;
+					GAME.player.y = GAME.floor - 100;
+					break;
+					
+				default:
+					resetPlayer();
+					break;
+				
+				}
 			});
 	}
 	
@@ -426,7 +609,7 @@
 	 *
 	 *	@return	The screen barrier.
 	 */
-	function generateScreenBarrier(side) {
+	function generateScreenBarrier(side, onhit) {
 		if (side !== "left" &&
 				side !== "right") {
 			side = "left";		
@@ -441,7 +624,7 @@
 			})
 			.color("#0F0")//@debug
 			.collision()
-			.onhit("player", function () {
+			.onhit("player", onhit || function () {
 				if (side === "left") { 
 					GAME.player.x = this.x + 10;
 				} else {
@@ -474,10 +657,24 @@
 	}
 	
 	/**
-	 *	Reset the player location.
+	 *	Destroy the introduction assets.
 	 */
-	function resetPlayer() {
-		GAME.player.x = 32;
+	function destroyIntroductionAssets() {
+		$(".introduction-asset").hide();
+	}
+	
+	/**
+	 *	Reset the player location.
+	 *
+	 *	@param side	"left" or "right". Default is left.
+	 */
+	function resetPlayer(side) {
+		if (side !== "left" &&
+				side !== "right") {
+			side = "left";		
+		}
+		
+		GAME.player.x = side === "left" ? 32 : GAME.width - 62;
 		GAME.player.y = GAME.floor - 26;
 	}
 	
@@ -487,12 +684,70 @@
 	 *	@param timer	The total time for this session.
 	 */
 	function initializeGame(time) {
+		$("#score, #acorn-meter").show();
 		destroyTitleAssets();
 		resetPlayer();
-		
-		if (time !== null) {
-			//	Start clock
+	}
+	
+	/**
+	 *	Generate an acorn.
+	 *
+	 *	@param x		The horizontal offset.
+	 *
+	 *	@param y		The vertical offset.
+	 *
+	 *	@param fallen	True if gravity should effect the acorn.
+	 */
+	function generateAcorn(x, y, fallen) {
+		var acorn_item = Crafty.e("2D, DOM, image, hit, collision")
+			.attr({
+				x: x,
+				y: y, 
+				w: 20,
+				h: 20,
+				z: LAYERS.background
+			})
+			.image("image/acorn.png", "no-repeat")
+			.collision()
+			.onhit("player", function () {
+				if (GAME.player.eatAcorn()) {
+					this.destroy();
+				}
+			});
+			
+		if (fallen) {
+			acorn_item.addComponent("gravity");
+			acorn_item.gravity("floor");
 		}
+		
+		return acorn_item;
+	}
+	
+	/**
+	 *	Generate the home tree.
+	 */
+	function generateHome() {
+		Crafty.e("2D, DOM, image")
+			.attr({
+				x: -85,
+				y: GAME.floor - 150, 
+				w: 190,
+				h: 165
+			})
+			.image("image/tree-home.png", "no-repeat");
+			
+		generateScreenBarrier("left", function () {
+			GAME.player.x = this.x + 10;
+			
+			if (GAME.player.cheeks > 0) {
+				GAME.player.incrementScore(GAME.player.cheeks);
+            	$("#score").text(GAME.player._score);
+            	GAME.player.cheeks = 0;
+            	$("#acorn-progress-bar").css("width", "0%");
+            	player_state.acorn_cheeks_debuff = 0;
+				updatePlayerMovement();
+			}
+		});
 	}
 	
 	//------------------------------
@@ -503,6 +758,8 @@
 	 *	The title screen.
 	 */
 	Crafty.scene("title", function() {
+		GAME.initialized = false;
+		
 		generateScreenBarrier();
 	
 		generatePlatform(GAME.width - 200, 200, GAME.floor - 50);
@@ -510,15 +767,50 @@
 		generatePlatform(GAME.width - 400, 400, GAME.floor - 200);
 		generatePlatform(GAME.width - 500, 500, GAME.floor - 275);
 	
-		generateSceneProgression(GAME.width, "introduction", GAME.floor - 50, 50);
-		generateSceneProgression(GAME.width, "spring", GAME.floor - 125, 50);
-		generateSceneProgression(GAME.width, "summer", GAME.floor - 200, 50);
-		generateSceneProgression(GAME.width, "autumn", GAME.floor - 275, 50);
-		generateSceneProgression(GAME.width, "winter", GAME.floor - 400, 100);
+		generateSceneProgression(GAME.width, "introduction", "tree", GAME.floor - 50, 50);
+		generateSceneProgression(GAME.width, "spring", "tree", GAME.floor - 125, 50);
+		generateSceneProgression(GAME.width, "summer", "tree", GAME.floor - 200, 50);
+		generateSceneProgression(GAME.width, "autumn", "tree", GAME.floor - 275, 50);
+		generateSceneProgression(GAME.width, "winter", "tree", GAME.floor - 400, 100);
+		
+		$("#title-screen").show();
 	});
 	
-	Crafty.scene("introduction", function () {
-		initializeGame();
+	Crafty.scene("introduction-tree", function () {
+		destroyTitleAssets();
+		destroyIntroductionAssets();
+		generateHome();
+		
+		if (!introduction.enabled) {
+		
+		}
+		
+		GAME.initialized = true;
+		introduction.enabled = true;
+		
+		$("#introduction-tree, #introduction-next").show();
+		
+		generateSceneProgression(GAME.width, "introduction-acorn");
+	});
+	
+	Crafty.scene("introduction-acorn", function () {
+		destroyIntroductionAssets();
+		
+		introduction.enabled = true;//@debug
+		
+		generateSceneProgression(GAME.width, "introduction-buffs", "left");
+		generateSceneProgression(0, "introduction-tree", "right");
+		
+		if (introduction.acorn_eaten) {
+			$("#introduction-acorn-meter, #introduction-next, #introduction-prev").show();
+		} else {
+			$("#introduction-acorn, #score, #introduction-next, #introduction-prev").show();
+			
+			if (!introduction.acorn_generated) {
+				introduction.acorn_generated = true;
+				generateAcorn(130, 65, true).attr({z: 150});
+			}
+		}
 	});
 	
 	Crafty.scene("spring", function () {
@@ -560,7 +852,7 @@
 		defineComponents();
 		genesis();
 		
-		Crafty.scene("title");
+		Crafty.scene("introduction-acorn");
 	});
 	
 }(jQuery));
