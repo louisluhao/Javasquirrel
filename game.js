@@ -394,15 +394,105 @@
 	}
 	
 	/**
+	 *	Generate a screen progression collision object.
+	 *
+	 *	@param x		Horizontal offset.
+	 *
+	 *	@param scene	The scene to transition to on collision.
+	 *
+	 *	@param y		Vertical offset. Defaults to 0.
+	 *
+	 *	@param h		The height. Defaults to screen height.
+	 */
+	function generateSceneProgression(x, scene, y, h) {
+		Crafty.e("2D, hit, collision, DOM, color")//@debug: DOM,color
+			.attr({
+				x: x - 32,
+				y: y || 0,
+				w: 32,
+				h: h || GAME.height
+			})
+			.color("#F00")//@debug
+			.collision()
+			.onhit("player", function () {
+				Crafty.scene(scene);
+			});
+	}
+	
+	/**
+	 *	Generate a screen barrier.
+	 *
+	 *	@param side	The side of the screen to put the barrier on. Default is left.
+	 *
+	 *	@return	The screen barrier.
+	 */
+	function generateScreenBarrier(side) {
+		if (side !== "left" &&
+				side !== "right") {
+			side = "left";		
+		}
+	
+		return Crafty.e("2D, hit, collision, DOM, color")//@debug: DOM,color
+			.attr({
+				x: side === "left" ? 0 : GAME.width - 10,
+				y: 0,
+				w: 10,
+				h: GAME.height
+			})
+			.color("#0F0")//@debug
+			.collision()
+			.onhit("player", function () {
+				if (side === "left") { 
+					GAME.player.x = this.x + 10;
+				} else {
+					GAME.player.x = this.x - 32;
+				}
+			});
+	}
+	
+	/**
 	 *	Generate the world.
 	 */
 	function genesis() {
-		Crafty.background("url(image/background.png)");
+		Crafty.background("url(image/background.jpg) no-repeat 0 -15px");
 		
 		generateFloor();
 		generatePlayer();
 		updatePlayerMovement();
 		GAME.player.animate("rest_forward", 80);
+	}
+	
+	//------------------------------
+	//  State management
+	//------------------------------
+	
+	/**
+	 *	Destroy the title screen assets.
+	 */
+	function destroyTitleAssets() {
+		$("#title-screen").hide();
+	}
+	
+	/**
+	 *	Reset the player location.
+	 */
+	function resetPlayer() {
+		GAME.player.x = 32;
+		GAME.player.y = GAME.floor - 26;
+	}
+	
+	/**
+	 *	Initialize the game screen.
+	 *
+	 *	@param timer	The total time for this session.
+	 */
+	function initializeGame(time) {
+		destroyTitleAssets();
+		resetPlayer();
+		
+		if (time !== null) {
+			//	Start clock
+		}
 	}
 	
 	//------------------------------
@@ -413,10 +503,46 @@
 	 *	The title screen.
 	 */
 	Crafty.scene("title", function() {
+		generateScreenBarrier();
+	
 		generatePlatform(GAME.width - 200, 200, GAME.floor - 50);
 		generatePlatform(GAME.width - 300, 300, GAME.floor - 125);
 		generatePlatform(GAME.width - 400, 400, GAME.floor - 200);
 		generatePlatform(GAME.width - 500, 500, GAME.floor - 275);
+	
+		generateSceneProgression(GAME.width, "introduction", GAME.floor - 50, 50);
+		generateSceneProgression(GAME.width, "spring", GAME.floor - 125, 50);
+		generateSceneProgression(GAME.width, "summer", GAME.floor - 200, 50);
+		generateSceneProgression(GAME.width, "autumn", GAME.floor - 275, 50);
+		generateSceneProgression(GAME.width, "winter", GAME.floor - 400, 100);
+	});
+	
+	Crafty.scene("introduction", function () {
+		initializeGame();
+	});
+	
+	Crafty.scene("spring", function () {
+		initializeGame();
+		generateScreenBarrier();
+		generateScreenBarrier("right");
+	});
+	
+	Crafty.scene("summer", function () {
+		initializeGame();
+		generateScreenBarrier();
+		generateScreenBarrier("right");
+	});
+	
+	Crafty.scene("autumn", function () {
+		initializeGame();
+		generateScreenBarrier();
+		generateScreenBarrier("right");
+	});
+	
+	Crafty.scene("winter", function () {
+		initializeGame();
+		generateScreenBarrier();
+		generateScreenBarrier("right");
 	});
 	
 	//------------------------------
