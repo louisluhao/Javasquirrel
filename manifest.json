@@ -1,0 +1,55 @@
+{
+	"includes": {
+		"jquery": {
+			"plugin": {
+				"clock": "current"
+			}
+		},
+		
+		"generic": {
+			"style": {
+				"htmlreset": "current"
+			},
+			
+			"script": {
+				"crafty": "0.3.x"
+			}
+		}
+	},
+
+	"configuration":
+	[
+	],
+	
+	"themes": {
+    },
+	
+	"application": {
+		"scripts":
+        [
+        	"game"
+        ],
+        
+        "styles":
+        [
+        	"game"
+        ],
+		
+		"static":
+		[
+			"fav.ico",
+			"image/acorn-badge.png",
+			"image/acorn-pile.png",
+			"image/acorn.png",
+			"image/background.jpg",
+			"image/burrow.png",
+			"image/coffee-cup.png",
+			"image/golden-acorn.png",
+			"image/omnom.png",
+			"image/squirrel.png",
+			"image/tile-ground.png",
+			"image/tree-home.png",
+			"image/trees.png"
+		]
+	}
+}

@@ -7,14 +7,11 @@
  *      GPLv3: http://www.opensource.org/licenses/gpl-3.0.html
  */
  
-/*  Font
-----------------------------------*/
- 
-@font-face 
-	{ font-family: 'GoodDogRegular'; src: url('font/GoodDog.otf'); }
- 
 /*  Viewport
 ----------------------------------*/
+
+.game-font /* Temporary */
+	{ font-family:"bad-dog-1","bad-dog-2",cursive; }
 
 #viewport-wrapper
 	{ width: 700px; height: 400px; margin: 75px auto 0; overflow: hidden; position: relative; }
@@ -29,17 +26,20 @@
 ----------------------------------*/
 
 #score
-	{ position: absolute; height: 110px; width: 90px; top: 5px; left: 5px; background: url(image/acorn-badge.png) no-repeat center center; font: bold 36px/140px GoodDogRegular; text-align: center; color: #FFF; display: none; }
+	{ position: absolute; height: 110px; width: 90px; top: 5px; left: 5px; background: url(image/acorn-badge.png) no-repeat center center; font-weight: bold; font-size: 26px; line-height: 140px; text-align: center; color: #FFF; display: none; }
 	
 #game-title
-	{ position: absolute; top: 25px; left: 25px; font: bold 54px GoodDogRegular; color: #8C481D; text-shadow: #666 4px 4px 3px; }
+	{ position: absolute; top: 25px; left: 25px; font-weight: bold; font-size: 54px; color: #8C481D; text-shadow: #666 4px 4px 3px; }
 	
 .onscreen-menu
 	{ background: #FFF; position: absolute; z-index: 45; width: 400px; padding: 15px 30px; border-radius: 5px; left: 50%; top: 40px; margin-left: -250px; 
-	-moz-box-shadow: 3px 3px 6px -3px #666; -webkit-box-shadow: 2px 2px 4px #666; box-shadow: 3px 3px 6px -3px #666; font: bold 26px/32px GoodDogRegular; color: #1A1F1E; }
+	-moz-box-shadow: 3px 3px 6px -3px #666; -webkit-box-shadow: 2px 2px 4px #666; box-shadow: 3px 3px 6px -3px #666; font-weight: bold; font-size: 26px; line-height: 32px; color: #1A1F1E; }
 	
 #title-screen
 	{ display: none; }
+	
+#timer
+	{ font-weigh: bold; font-size: 32px; position: absolute; top: 15px; left: 0; width: 100%; text-align: center; color: #FFF; display: none; }
 	
 /*  Acorn meter
 ----------------------------------*/
@@ -132,7 +132,7 @@
 ----------------------------------*/
 
 .title-text
-	{ font: bold 30px GoodDogRegular; text-shadow: #333 2px 2px 0px; position: absolute; z-index: 30; }
+	{ font-weight: bold; font-size: 30px; text-shadow: #333 2px 2px 0px; position: absolute; z-index: 30; }
 	
 #tutorial-title
 	{ bottom: 40px; left: 230px; color: #FFF; }
@@ -175,7 +175,7 @@
 	{ bottom: 40px; left: 20px; color: #FFF; }
 	
 #introduction-season-times
-	{ position: absolute; top: 150px; left: 120px; margin-top: 10px; font: bold 40px/22px GoodDogRegular; text-shadow: #333 2px 2px 0px; z-index: 500; }
+	{ position: absolute; top: 150px; left: 120px; margin-top: 10px; font-weight: bold; font-size: 40px; line-height: 22px; text-shadow: #333 2px 2px 0px; z-index: 500; }
 	
 #introduction-season-times li
 	{ float: left; width: 81px; margin-right: 43px; text-align: center; }

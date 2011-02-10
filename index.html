@@ -3,19 +3,19 @@
 	<head>
 		<title>Java Squirrel | 0.0.2 - Boiled over hard</title>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-		<link rel="shortcut icon" type="image/ico" href="image/icon.ico" />
+		<link rel="shortcut icon" type="image/ico" href="fav.ico" />
 		
-		<link media="screen" rel="stylesheet" type="text/css" href="htmlreset.css"/>
-		<link media="screen" rel="stylesheet" type="text/css" href="game.css"/>
+		<meta name="manifest" content="manifest.json" scheme="koi-bootstrap" />
+        <meta name="sdk" content="/remote/sdk" scheme="koi-bootstrap" />
+        <script type="text/javascript" src="/remote/sdk/koi/framework/bootstrap/current/bootstrap.js"></script>
 		
-		<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.3/jquery.min.js"></script>
-		<script type="text/javascript" src="crafty-min.js"></script>
-		<script type="text/javascript" src="game.js"></script>
+		<script type="text/javascript" src="http://use.typekit.com/nix8pmg.js"></script>
+		<script type="text/javascript">try{Typekit.load();}catch(e){}</script>
 	</head>
 	<body>
 		<div id="viewport-wrapper">
 			<div id="ui">
-				<div id="score">0</div>
+				<div id="score" class="game-font">0</div>
 				<div id="acorn-meter">
 					<div id="acorn-icon-wrapper">
 						<div class="acorn-icon"></div>
@@ -46,8 +46,9 @@
 						</div>
 					</div>
 				</div>
+				<div id="timer" class="game-font"></div>
 			</div>
-			<div id="cr-stage">
+			<div id="cr-stage" class="game-font">
 				<div id="introduction-tree" class="onscreen-menu introduction-asset">
 					<div class="home-tree-icon"></div>
 					<div>This is your home. It holds your supply of acorns for the coming winter. The goal is to fill your home with as many acorns as possible.</div>
@@ -55,11 +56,11 @@
 				
 				<div id="introduction-acorn" class="onscreen-menu introduction-asset">
 					<div class="acorn-icon"></div>
-					<div>This is an acorn. Collect these and bring them back to your home tree. You can always see how many acorns are in your home screen in the upper left hand corner.</div>
+					<div>This is an acorn. Collect these and bring them back to your home tree. The acorns in your home tree is your score.</div>
 				</div>
 				
 				<div id="introduction-acorn-meter" class="onscreen-menu introduction-asset">
-					<div>You collect acorns in your cheeks. You can only hold so many acorns in your cheeks before you must return to your home tree and drop them off. The more acorns you're holding, the slower you run.</div>
+					<div>You collect acorns in your cheeks. The more acorns you're holding, the slower you run. Remember to drop them off at home!</div>
 				</div>
 				
 				<div id="introduction-buffs" class="onscreen-menu introduction-asset">
@@ -82,7 +83,7 @@
 				</div>
 				
 				<div id="introduction-season" class="onscreen-menu introduction-asset">
-					<div>To begin the game, you choose a season. The closer to winter, the shorter play time.</div>
+					<div>To begin the game, you choose a season.</div>
 				</div>
 				
 				<div id="introduction-burrow" class="onscreen-menu introduction-asset">

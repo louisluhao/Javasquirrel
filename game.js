@@ -87,7 +87,12 @@
 			/**
 			 *	The scene acting as home tree.
 			 */
-			home_tree_scene: undefined
+			home_tree_scene: undefined,
+			
+			/**
+			 *	The timer object.
+			 */
+			timer: undefined
 		},
 
 	//------------------------------
@@ -1105,13 +1110,36 @@
 	}
 	
 	/**
+	 *	Expire the time.
+	 */
+	function timeUp() {
+		GAME.pause = true;
+		console.log("YOU LOSE! YOU GET NOTHING!");
+	}
+	
+	/**
 	 *	Initialize the game screen.
 	 *
-	 *	@param timer	The total time for this session.
+	 *	@param timer	The total time for this session, in seconds.
 	 */
 	function initializeGame(time) {
 		$("#score, #acorn-meter").show();
 		$("#golden-acorn-meter, #coffee-meter").show().css("opacity", 0.25);
+		
+		if (GAME.timer !== undefined) {
+			$.clock(GAME.timer).destroy();
+			GAME.timer = undefined;
+		}
+		
+		GAME.timer = $("#timer").clock({
+			mode: $.clock.modes.countdown, 
+			offset: {
+				seconds: time
+			}, 
+			format: "p:s", 
+			tare: true
+		}).bind("timer", timeUp).show();
+		
 		destroyTitleAssets();
 		resetPlayer();
 	}
@@ -1128,9 +1156,10 @@
 		introduction.enabled = false;
 		GAME.home_tree_scene = undefined;
 		destroyIntroductionAssets();
+		GAME.pause = false;
 		
 		//	Reset game
-		$("#acorn-meter, #golden-acorn-meter, #coffee-meter").hide();
+		$("#acorn-meter, #golden-acorn-meter, #coffee-meter, #timer").hide();
 		GAME.player.cheeks = 0;
 		$("#score").hide().text(0);
 		player_state.coffee_run_buff = 0;
@@ -1138,6 +1167,11 @@
 		player_state.golden_acorn_jump_buff = 1;
 		$("#golden-acorn-progress-bar, #coffee-progress-bar").stop().css("width", "0%");
 		updatePlayerMovement()
+		
+		if (GAME.timer !== undefined) {
+			$.clock(GAME.timer).destroy();
+			GAME.timer = undefined;
+		}
 		
 		generateScreenBarrier();
 	
@@ -1273,28 +1307,28 @@
 	});
 	
 	Crafty.scene("spring", function () {
-		initializeGame();
+		initializeGame(360);
 		generateHome();
 		GAME.home_tree_scene = "home";
 		generateScreenBarrier("right");
 	});
 	
 	Crafty.scene("summer", function () {
-		initializeGame();
+		initializeGame(270);
 		generateHome();
 		GAME.home_tree_scene = "home";
 		generateScreenBarrier("right");
 	});
 	
 	Crafty.scene("autumn", function () {
-		initializeGame();
+		initializeGame(180);
 		generateHome();
 		GAME.home_tree_scene = "home";
 		generateScreenBarrier("right");
 	});
 	
 	Crafty.scene("winter", function () {
-		initializeGame();
+		initializeGame(90);
 		generateHome();
 		GAME.home_tree_scene = "home";
 		generateScreenBarrier("right");
