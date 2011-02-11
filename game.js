@@ -62,7 +62,7 @@
 			/**
 			 *	The maximum number of acorns to nom at once.
 			 */
-			max_nom_nom: 15,
+			max_nom_nom: 25,
 			
 			/**
 			 *	Flag to determine if the game is paused.
@@ -94,6 +94,26 @@
 			 */
 			timer: undefined
 		},
+		
+		/**
+		 *	A map of scenes.
+		 */
+		SCENE_DEFINITION = {},
+		
+		/**
+		 *	The current scene the player is in.
+		 */
+		CURRENT_SCENE = 0,
+		
+		/**
+		 *	A collection of acorn IDs to their consumed status
+		 */
+		CONSUMED = {},
+		
+		/**
+		 *	Unique ID for acorns.
+		 */
+		UID = 0,
 
 	//------------------------------
 	//	Enumeration
@@ -131,12 +151,12 @@
 			/**
 			 *	The unbuffed player run speed.
 			 */
-			base_run_speed: 3,
+			base_run_speed: 4,
 			
 			/**
 			 *	The current player run speed.
 			 */
-			current_run_speed: 3,
+			current_run_speed: 4,
 			
 			/**
 			 *	The debuff associated with the number of acorns in the cheeks.
@@ -230,7 +250,7 @@
 	 */
 	function coffeeMeter() {
 		$("#coffee-meter").css("opacity", 1);
-		$("#coffee-progress-bar").css("width", "100%").animate({
+		$("#coffee-progress-bar").stop().css("width", "100%").animate({
 			width: 0
 		}, 
 		
@@ -248,7 +268,7 @@
 	 */
 	function goldenAcornMeter () {
 		$("#golden-acorn-meter").css("opacity", 1);
-		$("#golden-acorn-progress-bar").css("width", "100%").animate({
+		$("#golden-acorn-progress-bar").stop().css("width", "100%").animate({
 			width: 0
 		}, 
 		
@@ -527,6 +547,44 @@
 		});
 	}
 	
+	/**
+	 *	Clear out your cheeks.
+	 */
+	function clearCheeks() {
+		GAME.player.cheeks = 0;
+    	$("#acorn-progress-bar").css("width", "0%");
+    	player_state.acorn_cheeks_debuff = 0;
+		updatePlayerMovement();
+	}
+	
+	/**
+	 *	Generate a safe burp location.
+	 *
+	 *	@return	The burp object.
+	 */
+	function safeBurp(use_uid) {
+		var x = 1 * GAME.player._x,
+			burp = {
+				x: 0,
+				y: GAME.player._y + 54 - GAME.floor - 26,
+				uid: use_uid ? UID++ : undefined
+			};
+		
+		if (x + 54 > GAME.width - 15) {
+			x -= 54;
+		} else if (x - 54 < 0) {
+			x += 54;
+		} else if (GAME.player.facing === FACING.right) {
+			x += 54;
+		} else {
+			x -= 54;
+		}
+		
+		burp.x = x;
+		
+		return burp;	
+	}
+	
 	//------------------------------
 	//  World generation
 	//------------------------------
@@ -619,11 +677,42 @@
 				if (GAME.pause) {
 					return;
 				}
+				
+				var burp;
 			
 				switch (event.keyCode) {
 				
 				case Crafty.keys.SP:
 					this.burrow(this.hit("burrow"));
+					break;
+					
+				case Crafty.keys.C:
+					if (this.cheeks === GAME.max_nom_nom) {
+						clearCheeks();
+						this.drinkCoffee();
+					}
+					break;
+					
+				case Crafty.keys.G:
+					if (this.cheeks === GAME.max_nom_nom) {
+						clearCheeks();
+						this.eatGoldenAcorn();
+					}
+					break;
+					
+				case Crafty.keys.B:
+					if (this.cheeks === GAME.max_nom_nom) {
+						clearCheeks();
+						
+						if (SCENE_DEFINITION[CURRENT_SCENE] === undefined) {
+							burp = safeBurp(false);
+						} else {
+							burp = safeBurp(true);
+							SCENE_DEFINITION[CURRENT_SCENE].piles.push(burp);
+						}
+						
+						generateAcornPile(burp.x, burp.y, burp.uid);
+					}
 					break;
 				
 				case Crafty.keys.D:
@@ -763,21 +852,25 @@
 	 *
 	 *	@param y		The vertical offset.
 	 *
-	 *	@param autumnen	True if gravity should effect the acorn.
+	 *	@param fallen	True if gravity should effect the acorn.
+	 *
+	 *	@param uid		An optional UID for the acorn.
 	 */
-	function generateAcorn(x, y, fallen) {
+	function generateAcorn(x, y, fallen, uid) {
 		var acorn_item = Crafty.e("2D, DOM, image, hit, collision")
 			.attr({
 				x: x,
 				y: y, 
 				w: 20,
 				h: 20,
-				z: LAYERS.background
+				z: LAYERS.background,
+				uid: uid
 			})
 			.image("image/acorn.png", "no-repeat")
 			.collision()
 			.onhit("player", function () {
 				if (GAME.player.eatAcorn()) {
+					CONSUMED[this.uid] = true;
 					this.destroy();
 				}
 			});
@@ -796,22 +889,28 @@
 	 *	@param x		The horizontal offset.
 	 *
 	 *	@param y		The vertical offset.
+	 *
+	 *	@param uid		An optional UID.
 	 */
-	function generateAcornPile(x, y) {
+	function generateAcornPile(x, y, uid) {
 		return Crafty.e("2D, DOM, image, hit, collision, gravity")
 			.attr({
 				x: x,
 				y: GAME.floor - y - 54, 
 				w: 54,
 				h: 54,
-				z: LAYERS.background
+				z: LAYERS.background,
+				uid: uid
 			})
 			.image("image/acorn-pile.png", "no-repeat")
 			.collision()
 			.onhit("player", function () {
-				if (GAME.player.eatAcorn(GAME.max_nom_nom)) {
-					GAME.player.trigger("om-nom-nom-pile");
-					this.destroy();
+				if (GAME.player.cheeks < GAME.max_nom_nom) {
+					if (GAME.player.eatAcorn(GAME.max_nom_nom)) {
+						GAME.player.trigger("om-nom-nom-pile");
+						CONSUMED[this.uid] = true;
+						this.destroy();
+					}
 				}
 			})
 			.gravity("floor");
@@ -823,20 +922,24 @@
 	 *	@param x		The horizontal offset.
 	 *
 	 *	@param y		The vertical offset.
+	 *
+	 *	@param uid		An optional UID.
 	 */
-	function generateGoldenAcorn(x, y) {
+	function generateGoldenAcorn(x, y, uid) {
 		return Crafty.e("2D, DOM, image, hit, collision, gravity")
 			.attr({
 				x: x,
 				y: GAME.floor - y - 20, 
 				w: 20,
 				h: 20,
-				z: LAYERS.background
+				z: LAYERS.background,
+				uid: uid
 			})
 			.image("image/golden-acorn.png", "no-repeat")
 			.collision()
 			.onhit("player", function () {
 				GAME.player.eatGoldenAcorn();
+				CONSUMED[this.uid] = true;
 				this.destroy();
 			})
 			.gravity("floor");
@@ -848,20 +951,24 @@
 	 *	@param x		The horizontal offset.
 	 *
 	 *	@param y		The vertical offset.
+	 *
+	 *	@param uid		An optional UID.
 	 */
-	function generateCoffee(x, y) {
+	function generateCoffee(x, y, uid) {
 		return Crafty.e("2D, DOM, image, hit, collision, gravity")
 			.attr({
 				x: x,
 				y: y - 45, 
 				w: 48,
 				h: 41,
-				z: LAYERS.background
+				z: LAYERS.background,
+				uid: uid
 			})
 			.image("image/coffee-cup.png", "no-repeat")
 			.collision()
 			.onhit("player", function () {
-				GAME.player.drinkCoffee()
+				GAME.player.drinkCoffee();
+				CONSUMED[this.uid] = true;
 				this.destroy();
 			})
 			.gravity("floor");
@@ -875,15 +982,23 @@
 	 *	@param acorns	Should acorns be generated. Default true.
 	 *
 	 *	@param season	Optional season override.
+	 *
+	 *	@param position	Should the acorns be just positioned?
+	 *
+	 *	@return	The acorn object data.
 	 */
-	function generateTree(x, acorns, season) {
-		Crafty.e("2D, DOM, tree, tree_" + season || GAME.season)
-			.attr({
-				x: x,
-				y: GAME.floor - 130, 
-				w: 82,
-				h: 133
-			});
+	function generateTree(x, acorns, season, position) {
+		season = season || GAME.season;
+	
+		if (!position) {
+			Crafty.e("2D, DOM, tree, tree_" + season || GAME.season)
+				.attr({
+					x: x,
+					y: GAME.floor - 130, 
+					w: 82,
+					h: 133
+				});		
+		}
 			
 		var count = 0,
 		
@@ -893,10 +1008,14 @@
 			
 			acorn_y,
 			
-			y = GAME.floor - 130;
+			y = GAME.floor - 130,
+			
+			acorn_data = [],
+			
+			acorn;
 			
 		if (acorns) {
-			switch (season || GAME.season) {
+			switch (season) {
 			
 			case "spring":
 				count = Crafty.randRange(1, 5);
@@ -919,9 +1038,23 @@
 			for (; index < count; index++) {
 				acorn_x = x + Crafty.randRange(0, 80);
 				acorn_y = y + Crafty.randRange(0, 130);
-				generateAcorn(acorn_x, acorn_y, acorn_y > y + 100 || (acorn_y < y + 37 && (acorn_x < x + 20 || acorn_x > x + 55)));
+				
+				acorn = {
+					uid: UID++,
+					x: acorn_x,
+					y: acorn_y,
+					gravity: acorn_y > y + 100 || (acorn_y < y + 37 && (acorn_x < x + 20 || acorn_x > x + 55))
+				};
+				
+				acorn_data.push(acorn);
+				
+				if (!position) {
+					generateAcorn(acorn.x, acorn.y, acorn.gravity, acorn.uid);
+				}
 			}
 		}
+		
+		return acorn_data;
 	}
 	
 	/**
@@ -943,10 +1076,7 @@
 			if (GAME.player.cheeks > 0) {
 				GAME.player.incrementScore(GAME.player.cheeks);
             	$("#score").text(GAME.player._score);
-            	GAME.player.cheeks = 0;
-            	$("#acorn-progress-bar").css("width", "0%");
-            	player_state.acorn_cheeks_debuff = 0;
-				updatePlayerMovement();
+            	clearCheeks();
 			}
 		});
 	}
@@ -994,11 +1124,13 @@
 	 *
 	 *	@param side		The side to reorient the player on.
 	 *
+	 *	@param ordinal	Should the scene ordinal be inc/decremented. Default is false.
+	 *
 	 *	@param y		Vertical offset. Defaults to 0.
 	 *
 	 *	@param h		The height. Defaults to screen height.
 	 */
-	function generateSceneProgression(x, scene, side, y, h) {
+	function generateSceneProgression(x, scene, side, ordinal, y, h) {
 		if (x === 0) {
 			x = 10;
 		}
@@ -1013,6 +1145,14 @@
 			.color("#F00")//@debug
 			.collision()
 			.onhit("player", function () {
+				if (ordinal) {
+					if (side === "right") {
+						CURRENT_SCENE -= 1;
+					} else {
+						CURRENT_SCENE += 1;
+					}
+				}
+
 				Crafty.scene(scene);
 				
 				switch (side) {
@@ -1078,6 +1218,50 @@
 	}
 	
 	//------------------------------
+	//  Seasons
+	//------------------------------
+	
+	/**
+	 *	Set the current season.
+	 *
+	 *	@param season	The current season.
+	 */
+	function setSeason(season) {
+		GAME.season = season;
+		
+		var title = $("#season-title-" + season);
+		
+		title.fadeIn(750, function () {
+			title.fadeOut(2500);
+		});
+		
+		if (season === "winter") {
+			console.log("??");
+			console.log(snowStorm.active)
+			setTimeout(function (){snowStorm.toggleSnow();}, 0);
+			console.log(snowStorm.active)
+		} else {
+			setTimeout(function () {
+				switch (season) {
+				
+				case "spring":
+					setSeason("summer");
+					break;
+					
+				case "summer":
+					setSeason("autumn");
+					break;
+					
+				case "autumn":
+					setSeason("winter");
+					break;
+		
+				}
+			}, 9e4);
+		}
+	}
+	
+	//------------------------------
 	//  State management
 	//------------------------------
 	
@@ -1114,7 +1298,17 @@
 	 */
 	function timeUp() {
 		GAME.pause = true;
+		if (snowStorm.active) {
+			snowStorm.toggleSnow();
+		}
 		console.log("YOU LOSE! YOU GET NOTHING!");
+	}
+	
+	/**
+	 *	Generate the next screen.
+	 */
+	function generateNextScreen () {
+		generateScreenBarrier("right");
 	}
 	
 	/**
@@ -1131,6 +1325,16 @@
 			GAME.timer = undefined;
 		}
 		
+		if (snowStorm.active) {
+			snowStorm.toggleSnow();
+		}
+		
+		SCENE_DEFINITION = {};
+		CURRENT_SCENE = 0;
+		
+		CONSUMED = {};
+		UID = 0;
+		
 		GAME.timer = $("#timer").clock({
 			mode: $.clock.modes.countdown, 
 			offset: {
@@ -1140,8 +1344,194 @@
 			tare: true
 		}).bind("timer", timeUp).show();
 		
+		GAME.home_tree_scene = "home";
+		SCENE_DEFINITION[CURRENT_SCENE] = generateScene();
+		
+		if (SCENE_DEFINITION[CURRENT_SCENE].burrow !== undefined) {
+			SCENE_DEFINITION[CURRENT_SCENE].burrow = undefined;
+		}
+		
 		destroyTitleAssets();
 		resetPlayer();
+		
+		renderScene(SCENE_DEFINITION[CURRENT_SCENE]);
+		
+		generateHome();
+		generateSceneProgression(GAME.width, "generic", "left", true);
+	}
+	
+	/**
+	 *	Position a lose acorn.
+	 *
+	 *	@param min	Max screen height.
+	 *
+	 *	@param max	Max screen width.
+	 *
+	 *	@param y	The vertical position
+	 */
+	function positionLoseAcorn(min, max, y) {
+		return {
+				uid: UID++,
+				x: Crafty.randRange(min, max),
+				y: y,
+				gravity: true
+			}
+	}
+	
+	/**
+	 *	Generate a new scene object.
+	 *
+	 *	@return	A scene object.
+	 */
+	function generateScene() {
+		var scene = {
+				trees: [],
+				
+				acorns: [],
+				
+				platforms: [],
+				
+				piles: [],
+				
+				coffee: [],
+				
+				golden: [],
+				
+				burrow: undefined
+			};
+			
+		var tree_index = 0,
+		
+			tree_location,
+		
+			acorn_index = 0,
+			
+			platform_index = 0,
+			
+			platform_location,
+			
+			platform_bonus;
+			
+		for (; tree_index <= Crafty.randRange(1, 6); tree_index++) {
+			tree_location = Crafty.randRange(100, GAME.width - 100);
+			scene.trees.push(tree_location);
+			
+			scene.acorns = scene.acorns.concat(generateTree(tree_location, true, GAME.season, true));
+		}
+		
+		for (; acorn_index < Crafty.randRange(2, 15); acorn_index++) {
+			scene.acorns.push(positionLoseAcorn(60, GAME.width - 60, 40));
+		}
+		
+		for (; platform_index < Crafty.randRange(2, 4); platform_index++) {
+			platform_location = {
+				w: Crafty.randRange(75, 250),
+				x: undefined,
+				y: Crafty.randRange(30, 300)
+			};
+			
+			platform_location.x = Crafty.randRange(20, GAME.width - platform_location.w);
+			
+			platform_bonus = Crafty.randRange(0, 100);
+			
+			if (platform_bonus < 15) {
+				scene.piles.push({
+					x: Crafty.randRange(platform_location.x, platform_location.x + platform_location.w - 27),
+					y: platform_location.y,
+					uid: UID++
+				});
+			} else if (platform_bonus < 30) {
+				scene.coffee.push({
+					x: Crafty.randRange(platform_location.x, platform_location.x + platform_location.w - 24),
+					y: platform_location.y,
+					uid: UID++
+				});
+			} else if (platform_bonus < 45) {
+				scene.golden.push({
+					x: Crafty.randRange(platform_location.x, platform_location.x + platform_location.w - 10),
+					y: platform_location.y,
+					uid: UID++
+				});
+			} else if (platform_bonus < 60) {
+				scene.acorns.push(positionLoseAcorn(platform_location.x, platform_location.x + platform_location.w, platform_location.y - 20));
+				scene.acorns.push(positionLoseAcorn(platform_location.x, platform_location.x + platform_location.w, platform_location.y - 20));	
+			}
+			
+			scene.platforms.push(platform_location);
+		}
+		
+		//	15% chance to generate a burrow
+		if (Crafty.randRange(0, 100) < 15) {
+			scene.burrow = {
+				x: Crafty.randRange(80, GAME.width - 80)
+			};
+		}
+	
+		return scene;
+	}
+	
+	/**
+	 *	Process the recovery of consumables.
+	 *
+	 *	@param consumables	A collection of consumables to process.
+	 *
+	 *	@param method		The generator for this consumable.
+	 *
+	 *	@return	The unconsumed consumables rendered.
+	 */
+	function recoverConsumable(consumables, method) {
+		var data = [];
+		
+		$.each(consumables, function (index, consumable) {
+			if (CONSUMED[consumable.uid]) {
+				return;
+			}
+			
+			data.push(consumable);
+			method.call(method, consumable.x, consumable.y, consumable.uid);
+		});
+		
+		return data;
+	}
+	
+	/**
+	 *	Render the given scene.
+	 *
+	 *	@param scene	The scene object to render.
+	 */
+	function renderScene(scene) {
+		var acorn_data = [];
+	
+		$.each(scene.trees, function (index, tree) {
+			generateTree(tree);
+		});
+		
+		$.each(scene.platforms, function (index, platform) {
+			generatePlatform(platform.w, platform.x, platform.y);
+		});
+			
+		$.each(scene.acorns, function (index, acorn) {
+			if (CONSUMED[acorn.uid]) {
+				return;
+			}
+			
+			acorn_data.push(acorn);
+			generateAcorn(acorn.x, acorn.y, acorn.gravity, acorn.uid);
+		});
+		
+		scene.piles = recoverConsumable(scene.piles, generateAcornPile);
+		scene.coffee = recoverConsumable(scene.coffee, generateCoffee);
+		scene.golden = recoverConsumable(scene.golden, generateGoldenAcorn);
+		
+		if (scene.burrow !== undefined) {
+			if (CONSUMED[scene.burrow.uid]) {
+				scene.burrow = undefined;
+			} else {
+				generateBurrow(scene.burrow.x);
+			}
+		}
+		
+		scene.acorns = acorn_data;
 	}
 	
 	//------------------------------
@@ -1180,13 +1570,37 @@
 		generatePlatform(GAME.width - 400, 400, 200);
 		generatePlatform(GAME.width - 500, 500, 275);
 	
-		generateSceneProgression(GAME.width, "introduction-tree", "tree", GAME.floor - 50, 50);
-		generateSceneProgression(GAME.width, "spring", "tree", GAME.floor - 125, 50);
-		generateSceneProgression(GAME.width, "summer", "tree", GAME.floor - 200, 50);
-		generateSceneProgression(GAME.width, "autumn", "tree", GAME.floor - 275, 50);
-		generateSceneProgression(GAME.width, "winter", "tree", GAME.floor - 400, 100);
+		generateSceneProgression(GAME.width, "introduction-tree", "tree", false, GAME.floor - 50, 50);
+		generateSceneProgression(GAME.width, "spring", "tree", false, GAME.floor - 125, 50);
+		generateSceneProgression(GAME.width, "summer", "tree", false, GAME.floor - 200, 50);
+		generateSceneProgression(GAME.width, "autumn", "tree", false, GAME.floor - 275, 50);
+		generateSceneProgression(GAME.width, "winter", "tree", false, GAME.floor - 400, 100);
 		
 		$("#title-screen").show();
+	});
+	
+	Crafty.scene("home", function () {
+		generateHome();
+		generateSceneProgression(GAME.width, "generic", "left", true);
+		CURRENT_SCENE = 0;
+		
+		renderScene(SCENE_DEFINITION[CURRENT_SCENE]);
+	}); 
+	
+	Crafty.scene("generic", function () {
+	
+		if (SCENE_DEFINITION[CURRENT_SCENE] === undefined) {
+			SCENE_DEFINITION[CURRENT_SCENE] = generateScene();
+		}
+		
+		renderScene(SCENE_DEFINITION[CURRENT_SCENE]);
+	
+		if (CURRENT_SCENE === 1) {
+			generateSceneProgression(0, "home", "right");
+		} else {
+			generateSceneProgression(0, "generic", "right", true);
+		}
+		generateSceneProgression(GAME.width, "generic", "left", true);
 	});
 	
 	Crafty.scene("introduction-tree", function () {
@@ -1307,31 +1721,23 @@
 	});
 	
 	Crafty.scene("spring", function () {
+		setSeason("spring");
 		initializeGame(360);
-		generateHome();
-		GAME.home_tree_scene = "home";
-		generateScreenBarrier("right");
 	});
 	
 	Crafty.scene("summer", function () {
+		setSeason("summer");
 		initializeGame(270);
-		generateHome();
-		GAME.home_tree_scene = "home";
-		generateScreenBarrier("right");
 	});
 	
 	Crafty.scene("autumn", function () {
+		setSeason("autumn");
 		initializeGame(180);
-		generateHome();
-		GAME.home_tree_scene = "home";
-		generateScreenBarrier("right");
 	});
 	
 	Crafty.scene("winter", function () {
+		setSeason("winter");
 		initializeGame(90);
-		generateHome();
-		GAME.home_tree_scene = "home";
-		generateScreenBarrier("right");
 	});
 	
 	//------------------------------
@@ -1350,6 +1756,11 @@
 		genesis();
 		
 		Crafty.scene("title");
+		
+		snowStorm.targetElement = "viewport-wrapper";
+		snowStorm.zIndex = 800;
+		snowStorm.flakesMaxActive = 96; 
+		snowStorm.useTwinkleEffect = true;
 	});
 	
 }(jQuery));

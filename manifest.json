@@ -12,7 +12,8 @@
 			},
 			
 			"script": {
-				"crafty": "0.3.x"
+				"crafty": "current",
+				"snowstorm": "current"
 			}
 		}
 	},
