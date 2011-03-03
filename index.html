@@ -1,9 +1,9 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 	<head>
-		<title>Java Squirrel | 0.0.2 - Boiled over hard</title>
+		<title>Java Squirrel</title>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-		<link rel="shortcut icon" type="image/ico" href="fav.ico" />
+		<link rel="shortcut icon" type="image/ico" href="http://www.twablet.com/javasquirrel/__static__/fav.ico" />
 		
 		<meta name="manifest" content="manifest.json" scheme="koi-bootstrap" />
         <meta name="sdk" content="/remote/sdk" scheme="koi-bootstrap" />
@@ -47,6 +47,11 @@
 					</div>
 				</div>
 				<div id="timer" class="game-font"></div>
+				
+				<div id="end-screen" class="onscreen-menu introduction-asset game-font">
+					<div>You stored <span id="total-score"></span> acorns.</div>
+					<div id="restart-game">Hit Enter to Play Again!</div>
+				</div>
 			</div>
 			<div id="cr-stage" class="game-font">
 				<div id="introduction-tree" class="onscreen-menu introduction-asset">
@@ -108,7 +113,12 @@
 				
 				<div id="introduction-burrow" class="onscreen-menu introduction-asset">
 					<div class="burrow-icon"></div>
-					<div>Burrows can appear from time to time. These are one-way tunnels leading back to your home tree. Stand on a burrow and hit &lt;Spacebar&gt; to use a burrow.</div>
+					<div>This is a burrow! These are tunnels leading back to your home tree. Stand on a burrow and hit &lt;Spacebar&gt; to use it.</div>
+				</div>
+				
+				<div id="introduction-burrow-return" class="onscreen-menu introduction-asset">
+					<div class="burrow-icon"></div>
+					<div>After using a burrow, one will appear near your home tree. Stand on the burrow and hit &lt;Spacebar&gt; to return to the last used burrow.</div>
 				</div>
 				
 				<div id="introduction-done" class="onscreen-menu introduction-asset">

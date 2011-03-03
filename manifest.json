@@ -20,6 +20,7 @@
 
 	"configuration":
 	[
+		"config"
 	],
 	
 	"themes": {
@@ -36,21 +37,37 @@
         	"game"
         ],
 		
+		"images":
+		[
+			"acorn-badge.png",
+			"acorn-pile.png",
+			"acorn.png",
+			"background.jpg",
+			"burrow.png",
+			"coffee-cup.png",
+			"golden-acorn.png",
+			"omnom.png",
+			"squirrel.png",
+			"tile-ground.png",
+			"tree-home.png",
+			"trees.png"
+		],
+		
 		"static":
 		[
 			"fav.ico",
-			"image/acorn-badge.png",
-			"image/acorn-pile.png",
-			"image/acorn.png",
-			"image/background.jpg",
-			"image/burrow.png",
-			"image/coffee-cup.png",
-			"image/golden-acorn.png",
-			"image/omnom.png",
-			"image/squirrel.png",
-			"image/tile-ground.png",
-			"image/tree-home.png",
-			"image/trees.png"
+			"images/acorn-badge.png",
+			"images/acorn-pile.png",
+			"images/acorn.png",
+			"images/background.jpg",
+			"images/burrow.png",
+			"images/coffee-cup.png",
+			"images/golden-acorn.png",
+			"images/omnom.png",
+			"images/squirrel.png",
+			"images/tile-ground.png",
+			"images/tree-home.png",
+			"images/trees.png"
 		]
 	}
 }

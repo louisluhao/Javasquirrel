@@ -35,6 +35,11 @@
 			width: 700,
 			
 			/**
+			 *	Is the game over?
+			 */
+			over: false,
+			
+			/**
 			 *	Game height.
 			 */
 			height: 400,
@@ -92,7 +97,17 @@
 			/**
 			 *	The timer object.
 			 */
-			timer: undefined
+			timer: undefined,
+			
+			/**
+			 *	The current scene.
+			 */
+			current_scene: undefined,
+			
+			/**
+			 *	The burrow return scene.
+			 */
+			burrow_destination: undefined
 		},
 		
 		/**
@@ -292,8 +307,11 @@
 	 */
 	function defineComponents() {
 		//	Override twoway to add in pause functionality.
-		Crafty.components().twoway.twoway = function(speed,jump) {
-			if(speed) this._speed = speed;
+		Crafty.components().twoway.twoway = function(speed, jump) {
+			if (speed) {
+				this._speed = speed;
+			}
+			
 			this._jump = jump;
 			
 			var move = this.__move;
@@ -315,7 +333,7 @@
 				}
 				if(move.up) {
 					this.y -= this._jump;
-					this._autumning = true;
+					this._falling = true;
 					changed = true;
 				}
 			}).bind("keydown", function(e) {
@@ -378,15 +396,17 @@
 			/**
 			 *	Eat acorns.
 			 *
-			 *	@param acorns	The number of acorns to eat. Default is 1.
+			 *	@param fill	Should the cheeks be filled if possible?
 			 */
-			eatAcorn: function (acorns) {
-				if (acorns !== undefined) {
-					if (acorns > GAME.max_nom_nom - this.cheeks) {
-						acorns = GAME.max_nom_nom - this.cheeks;
+			eatAcorn: function (fill) {
+				var acorns = 1;
+			
+				if (fill) {
+					if (GAME.max_nom_nom === this.cheeks) {
+						return false;
 					}
-				} else {
-					acorns = 1;
+					
+					acorns = GAME.max_nom_nom - this.cheeks;
 				}
 			
 				if (this.cheeks + acorns <= GAME.max_nom_nom) {
@@ -435,13 +455,34 @@
 			
 				GAME.pause = true;
 				this.trigger("dig-dug");
-				Crafty.scene(GAME.home_tree_scene);
+				
+				var destination;
+				
+				if (introduction.enabled) {
+					if (GAME.current_scene === GAME.home_tree_scene) {
+						destination = GAME.burrow_destination;
+					} else {
+						GAME.burrow_destination = GAME.current_scene;
+						destination = GAME.home_tree_scene;
+					}
+				} else {
+					if (GAME.current_scene === GAME.home_tree_scene) {
+						CURRENT_SCENE = GAME.burrow_destination
+						destination = "generic";
+					} else {
+						GAME.burrow_destination = CURRENT_SCENE;
+						destination = GAME.home_tree_scene;
+					}
+				}
+				
+				GAME.current_scene = destination;
+				Crafty.scene(destination);
 				
 				GAME.pause = false;
 			}
 		});
 
-		Crafty.sprite(133, "image/trees.png", {
+		Crafty.sprite(133, __CONFIG.images.trees, {
 			tree_spring: [0, 0],
 			tree_autumn: [0, 1],
 			tree_winter: [0, 2],
@@ -474,14 +515,18 @@
 	function acornMeterIntroduction() {
 		destroyIntroductionAssets();
 		
-		$("#introduction-acorn-meter, #acorn-meter, #introduction-next, #introduction-prev").show();
+		$("#acorn-meter, #introduction-next, #introduction-prev").show();
+		
+		if (GAME.current_scene === "introduction-acorn") {
+			$("#introduction-acorn-meter").show();
+		}
 	}
 	
 	/**
 	 *	Eat the acorn in the intro.
 	 */
 	function introEatAcorn() {
-		if (!introduction.acorn_eaten) {
+		if (introduction.enabled && !introduction.acorn_eaten) {
 			introduction.acorn_eaten = true;
 			acornMeterIntroduction();
 		}
@@ -493,7 +538,7 @@
 	 *	Eat an acorn pile in the intro.
 	 */
 	function introEatPile() {
-		if (!introduction.eaten_pile) {
+		if (introduction.enabled && !introduction.eaten_pile) {
 			introduction.eaten_pile = true;
 			destroyIntroductionAssets();
 			$("#introduction-buff-acorn-pile, #acorn-meter").show();
@@ -506,7 +551,7 @@
 	 *	Eat a golden acorn in the intro.
 	 */
 	function introGoldenAcorn() {
-		if (!introduction.golden_acorn) {
+		if (introduction.enabled && !introduction.golden_acorn) {
 			introduction.golden_acorn = true;
 			destroyIntroductionAssets();
 			$("#introduction-buff-golden-acorn, #golden-acorn-meter").show();
@@ -519,7 +564,7 @@
 	 *	Drink coffee in the intro.
 	 */
 	function introDrinkCoffee() {
-		if (!introduction.drink_coffee) {
+		if (introduction.enabled && !introduction.drink_coffee) {
 			introduction.drink_coffee = true;
 			destroyIntroductionAssets();
 			$("#introduction-buff-coffee, #coffee-meter").show();
@@ -566,13 +611,15 @@
 		var x = 1 * GAME.player._x,
 			burp = {
 				x: 0,
-				y: GAME.player._y + 54 - GAME.floor - 26,
+				y: GAME.player._y + 26,
 				uid: use_uid ? UID++ : undefined
 			};
+			
+		console.log(burp.y, GAME.player._y, GAME.floor - burp.y - 54)
 		
 		if (x + 54 > GAME.width - 15) {
 			x -= 54;
-		} else if (x - 54 < 0) {
+		} else if (x - 54 < 15) {
 			x += 54;
 		} else if (GAME.player.facing === FACING.right) {
 			x += 54;
@@ -602,7 +649,7 @@
 				w: GAME.width,
 				h: 30
 			})
-			.image("image/tile-ground.png", "repeat-x");
+			.image(__CONFIG.images.ground, "repeat-x");
 	}
 	
 	/**
@@ -643,7 +690,7 @@
 		/**
 		 *	Define the squirrel sprite.
 		 */
-		Crafty.sprite(32, "image/squirrel.png", {
+		Crafty.sprite(32, __CONFIG.images.squirrel, {
 			squirrel: sprite.forward_rest
 		});
 		
@@ -674,6 +721,11 @@
 			 *	Player keybindings.
 			 */
 			.bind("keydown", function (event) {
+				if (GAME.over && event.keyCode === Crafty.keys.ENT) {
+					restartGame();
+					return;
+				}
+				
 				if (GAME.pause) {
 					return;
 				}
@@ -866,7 +918,7 @@
 				z: LAYERS.background,
 				uid: uid
 			})
-			.image("image/acorn.png", "no-repeat")
+			.image(__CONFIG.images.acorn, "no-repeat")
 			.collision()
 			.onhit("player", function () {
 				if (GAME.player.eatAcorn()) {
@@ -896,17 +948,17 @@
 		return Crafty.e("2D, DOM, image, hit, collision, gravity")
 			.attr({
 				x: x,
-				y: GAME.floor - y - 54, 
+				y: y - 54, 
 				w: 54,
 				h: 54,
 				z: LAYERS.background,
 				uid: uid
 			})
-			.image("image/acorn-pile.png", "no-repeat")
+			.image(__CONFIG.images.acorn_pile, "no-repeat")
 			.collision()
 			.onhit("player", function () {
 				if (GAME.player.cheeks < GAME.max_nom_nom) {
-					if (GAME.player.eatAcorn(GAME.max_nom_nom)) {
+					if (GAME.player.eatAcorn(true)) {
 						GAME.player.trigger("om-nom-nom-pile");
 						CONSUMED[this.uid] = true;
 						this.destroy();
@@ -935,7 +987,7 @@
 				z: LAYERS.background,
 				uid: uid
 			})
-			.image("image/golden-acorn.png", "no-repeat")
+			.image(__CONFIG.images.golden_acorn, "no-repeat")
 			.collision()
 			.onhit("player", function () {
 				GAME.player.eatGoldenAcorn();
@@ -964,7 +1016,7 @@
 				z: LAYERS.background,
 				uid: uid
 			})
-			.image("image/coffee-cup.png", "no-repeat")
+			.image(__CONFIG.images.coffee_cup, "no-repeat")
 			.collision()
 			.onhit("player", function () {
 				GAME.player.drinkCoffee();
@@ -1068,7 +1120,7 @@
 				w: 190,
 				h: 165
 			})
-			.image("image/tree-home.png", "no-repeat");
+			.image(__CONFIG.images.home_tree, "no-repeat");
 			
 		generateScreenBarrier("left", function () {
 			GAME.player.x = this.x + 10;
@@ -1093,7 +1145,7 @@
 	function generatePlatform(w, x, y) {
 		var barrier = Crafty.e("barrier, DOM, image")
 			.barrier(x, GAME.floor - y - 25, w, 25)
-			.image("image/tile-ground.png", "repeat-x");
+			.image(__CONFIG.images.ground, "repeat-x");
 		
 		barrier.north.addComponent("floor");
 	}
@@ -1112,7 +1164,7 @@
 				h: 42,
 				z: LAYERS.foreground
 			})
-			.image("image/burrow.png", "no-repeat");
+			.image(__CONFIG.images.burrow, "no-repeat");
 	}
 	
 	/**
@@ -1135,14 +1187,14 @@
 			x = 10;
 		}
 	
-		Crafty.e("2D, hit, collision, DOM, color")//@debug: DOM,color
+		Crafty.e("2D, hit, collision")//@debug: DOM,color
 			.attr({
 				x: x - 10,
-				y: y || -100,
+				y: y || -400,
 				w: 10,
-				h: h || GAME.height + 100
+				h: h || GAME.height + 400
 			})
-			.color("#F00")//@debug
+			//.color("#F00")//@debug
 			.collision()
 			.onhit("player", function () {
 				if (ordinal) {
@@ -1152,7 +1204,8 @@
 						CURRENT_SCENE += 1;
 					}
 				}
-
+				
+				GAME.current_scene = scene;
 				Crafty.scene(scene);
 				
 				switch (side) {
@@ -1187,14 +1240,14 @@
 			side = "left";		
 		}
 	
-		return Crafty.e("2D, hit, collision, DOM, color")//@debug: DOM,color
+		return Crafty.e("2D, hit, collision")//, DOM, color")//@debug: DOM,color
 			.attr({
 				x: side === "left" ? 0 : GAME.width - 10,
 				y: -75,
 				w: 10,
 				h: GAME.height + 75
 			})
-			.color("#0F0")//@debug
+			//.color("#0F0")//@debug
 			.collision()
 			.onhit("player", onhit || function () {
 				if (side === "left") { 
@@ -1209,7 +1262,12 @@
 	 *	Generate the world.
 	 */
 	function genesis() {
-		Crafty.background("url(image/background.jpg) no-repeat 0 -15px");
+		Crafty.background("url(" + __CONFIG.images.background + "?_=" + (new Date()).valueOf().toString() + ") no-repeat 0 -15px");
+		
+		snowStorm.targetElement = "viewport-wrapper";
+		snowStorm.zIndex = 800;
+		snowStorm.flakesMaxActive = 96; 
+		snowStorm.useTwinkleEffect = true;
 		
 		generateFloor();
 		generatePlayer();
@@ -1236,10 +1294,7 @@
 		});
 		
 		if (season === "winter") {
-			console.log("??");
-			console.log(snowStorm.active)
 			setTimeout(function (){snowStorm.toggleSnow();}, 0);
-			console.log(snowStorm.active)
 		} else {
 			setTimeout(function () {
 				switch (season) {
@@ -1294,14 +1349,30 @@
 	}
 	
 	/**
+	 *	Restart the game.
+	 */
+	function restartGame() {
+		if (snowStorm.active) {
+			snowStorm.toggleSnow();
+		}
+		
+		resetPlayer();
+		
+		Crafty.scene("title");
+		
+		$("#end-screen").hide();
+	}
+	
+	/**
 	 *	Expire the time.
 	 */
 	function timeUp() {
 		GAME.pause = true;
-		if (snowStorm.active) {
-			snowStorm.toggleSnow();
-		}
-		console.log("YOU LOSE! YOU GET NOTHING!");
+		GAME.over = true;
+		GAME.timer = undefined;
+		
+		$("#total-score").text(GAME.player._score);
+		$("#end-screen").show();
 	}
 	
 	/**
@@ -1320,11 +1391,6 @@
 		$("#score, #acorn-meter").show();
 		$("#golden-acorn-meter, #coffee-meter").show().css("opacity", 0.25);
 		
-		if (GAME.timer !== undefined) {
-			$.clock(GAME.timer).destroy();
-			GAME.timer = undefined;
-		}
-		
 		if (snowStorm.active) {
 			snowStorm.toggleSnow();
 		}
@@ -1335,7 +1401,9 @@
 		CONSUMED = {};
 		UID = 0;
 		
-		GAME.timer = $("#timer").clock({
+		GAME.timer = "#timer";
+		
+		$(GAME.timer).clock({
 			mode: $.clock.modes.countdown, 
 			offset: {
 				seconds: time
@@ -1460,8 +1528,8 @@
 			scene.platforms.push(platform_location);
 		}
 		
-		//	15% chance to generate a burrow
-		if (Crafty.randRange(0, 100) < 15) {
+		//	25% chance to generate a burrow
+		if (Crafty.randRange(0, 100) < 25) {
 			scene.burrow = {
 				x: Crafty.randRange(80, GAME.width - 80)
 			};
@@ -1545,8 +1613,11 @@
 		GAME.initialized = false;
 		introduction.enabled = false;
 		GAME.home_tree_scene = undefined;
+		GAME.burrow_destination = undefined;
 		destroyIntroductionAssets();
+		GAME.over = false;
 		GAME.pause = false;
+		GAME.player._score = 0;
 		
 		//	Reset game
 		$("#acorn-meter, #golden-acorn-meter, #coffee-meter, #timer").hide();
@@ -1584,6 +1655,11 @@
 		generateSceneProgression(GAME.width, "generic", "left", true);
 		CURRENT_SCENE = 0;
 		
+		if (SCENE_DEFINITION[CURRENT_SCENE].burrow === undefined &&
+				GAME.burrow_destination !== undefined) {
+			SCENE_DEFINITION[CURRENT_SCENE].burrow = {x: GAME.width / 2};
+		}
+		
 		renderScene(SCENE_DEFINITION[CURRENT_SCENE]);
 	}); 
 	
@@ -1619,8 +1695,9 @@
 		generateHome();
 		
 		if (introduction.burrow_used) {
-			$("#introduction-done, #introduction-start").show();
-			generateSceneProgression(GAME.width, "title");
+			$("#introduction-burrow-return, #introduction-next").show();
+			generateSceneProgression(GAME.width, "introduction-acorn");
+			generateBurrow(GAME.width / 2);
 		} else {
 			$("#introduction-tree, #introduction-next").show();
 			generateSceneProgression(GAME.width, "introduction-acorn");
@@ -1638,11 +1715,13 @@
 			GAME.player.bind("om-nom-nom", introEatAcorn);		
 		}
 		
+		generatePlatform(75, 300, 35);
+		
 		if (introduction.acorn_eaten) {
 			$("#introduction-acorn-meter, #introduction-next, #introduction-prev").show();
 		} else {
 			$("#introduction-acorn, #score, #introduction-next, #introduction-prev").show();
-			generateAcorn(130, 65, true).attr({z: 150});
+			generateAcorn(325, GAME.floor - 70, true).attr({z: 150});
 		}
 	});
 	
@@ -1654,10 +1733,9 @@
 		
 		$("#introduction-next, #introduction-prev").show();
 		
-		generatePlatform(75, 300, 180);
-		
-		generatePlatform(125, 480, 35);
-		generatePlatform(125, 480, 130);
+		generatePlatform(75, 100, 45);
+		generatePlatform(75, 300, 45);
+		generatePlatform(75, 500, 45);
 
 		if (!introduction.powerups_generated) {
 			introduction.powerups_generated = true;
@@ -1670,15 +1748,15 @@
 		}
 		
 		if (!introduction.drink_coffee) {
-			generateCoffee(315, 180);
+			generateCoffee(315, GAME.floor - 45);
 		}
 		
 		if (!introduction.eaten_pile) {
-			generateAcornPile(515, 35);
+			generateAcornPile(115, GAME.floor - 45);
 		}
 		
 		if (!introduction.golden_acorn) {
-			generateGoldenAcorn(530, 145);
+			generateGoldenAcorn(525, 60);
 		}
 	});
 	
@@ -1699,7 +1777,7 @@
 	Crafty.scene("introduction-burrow", function () {
 		destroyIntroductionAssets();
 		
-		$("#introduction-burrow, #introduction-start, #introduction-prev").show();
+		$("#introduction-start, #introduction-prev").show();
 		
 		if (!introduction.burrow_bound) {
 			introduction.burrow_bound = true;
@@ -1712,12 +1790,16 @@
 			});		
 		}
 		
-		if (!introduction.burrow_used) {
-			generateBurrow(GAME.width / 2);
-		}
+		generateBurrow(GAME.width / 2);
 		
 		generateSceneProgression(0, "introduction-season", "right");
 		generateSceneProgression(GAME.width, "title", "left");
+		
+		if (introduction.burrow_used) {
+			$("#introduction-done").show();
+		} else {
+			$("#introduction-burrow").show();
+		}
 	});
 	
 	Crafty.scene("spring", function () {
@@ -1756,11 +1838,6 @@
 		genesis();
 		
 		Crafty.scene("title");
-		
-		snowStorm.targetElement = "viewport-wrapper";
-		snowStorm.zIndex = 800;
-		snowStorm.flakesMaxActive = 96; 
-		snowStorm.useTwinkleEffect = true;
 	});
 	
 }(jQuery));
