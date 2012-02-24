@@ -10,10 +10,6 @@
 /*  Viewport
 ----------------------------------*/
 
-body {
-	background: #F5F7F8;
-}
-
 #viewport-wrapper
 	{ width: 700px; height: 400px; margin: 75px auto 0; overflow: hidden; position: relative; }
 	
@@ -25,6 +21,16 @@ body {
 	
 /*  User Interface
 ----------------------------------*/
+
+#tree-exit {
+	display: none;
+	text-shadow: #666 4px 4px 3px;
+	position: absolute;
+	top: 210px;
+	left: 0;
+	text-align: center;
+	width: 100%;
+}
 
 #om-nom-bar {
 	display: none;

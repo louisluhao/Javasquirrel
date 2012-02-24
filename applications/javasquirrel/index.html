@@ -68,6 +68,16 @@
 				<div id="golden-meter-powerup" class="powerup-available game-font pulse">
 					Hit G!
 				</div>
+				<div id="timestop-meter">
+					<div id="timestop-icon-wrapper" class="timestop-meter-opacity">
+						<div class="timestop-icon"></div>
+					</div>
+					<div id="timestop-progress-wrapper" class="timestop-meter-opacity">
+						<div id="timestop-progress-bar-wrapper">
+							<div id="timestop-progress-bar"></div>
+						</div>
+					</div>
+				</div>
 				<div id="timer" class="game-font"></div>
 				
 				<div id="end-screen" class="onscreen-menu introduction-asset game-font">
@@ -81,12 +91,26 @@
 				</div>
 				<div id="introduction-tree" class="onscreen-menu introduction-asset">
 					<div class="home-tree-icon"></div>
-					<div>This is your home. It holds your supply of acorns for the coming winter. The goal is to fill your home with as many acorns as possible.</div>
+					<div>This is your home tree, which holds your acorns. The goal is to fill your home with as many acorns as possible.</div>
 				</div>
 
 				<div id="bonus-capacity" class="season-title">
 					<h2 class="spring-text">+<span id="earned-nuts">5</span> Cheeks!</h2>
 					<h3>OM NOM NOM!</h3>
+				</div>
+
+				<div id="season-title-infinite" class="season-title">
+					<h2 class="spring-text">&infin; spring!</h2>
+					<h3>Play forever!</h3>
+				</div>
+
+				<div id="tree-exit" class="game-font">
+					Hit &lt;E&gt; on home tree to exit infite mode
+				</div>
+
+				<div id="cheater-cheater-pumpkin-eater" class="season-title">
+					<h2 class="spring-text">Cheat Enabled!</h2>
+					<h3>Time to make it rain!</h3>
 				</div>
 				
 				<div id="season-title-spring" class="season-title">
@@ -111,7 +135,7 @@
 				
 				<div id="introduction-acorn" class="onscreen-menu introduction-asset">
 					<div class="acorn-icon"></div>
-					<div>This is an acorn. Collect these and bring them back to your home tree. The acorns in your home tree is your score! You gain +5 cheek capacity for every 50 acorns stored in your home!</div>
+					<div>This is an acorn. Collect these and bring them back to your home tree. You only score points when you return acorns to your home tree. You gain +5 cheek capacity for every 50 acorns stored in your home!</div>
 				</div>
 				
 				<div id="introduction-acorn-meter" class="onscreen-menu introduction-asset">
@@ -183,21 +207,26 @@
 			</div>
 		</div>
 		<div id="footer">
-			<ul class="menu">
-				<li class="active">&copy; 2012 Eric Garside</li>
-				<li class="active">
-					Found a bug? Oh noes! <a href="https://github.com/garside/Javasquirrel/issues">report it</a>!
-				</li>
-				<li class="active">
-					<a href="https://github.com/garside/Javasquirrel">Javasquirrel on Github</a>
-				</li>
-				<li class="active">
-					<a href="http://craftyjs.com/">CraftyJS</a>
-				</li>
-				<li class="active">
-					<a href="http://opengameart.org/">OpenGameArt</a>
-				</li>
-			</ul>
+			<div class="ui-helper-clearfix">
+				<ul class="menu">
+					<li class="active">&copy; 2012 Eric Garside</li>
+					<li class="active">
+						Found a bug? Oh noes! <a href="https://github.com/garside/Javasquirrel/issues">report it</a>!
+					</li>
+					<li class="active">
+						<a href="https://github.com/garside/Javasquirrel">Javasquirrel on Github</a>
+					</li>
+					<li class="active">
+						<a href="http://craftyjs.com/">CraftyJS</a>
+					</li>
+					<li class="active">
+						<a href="http://opengameart.org/">OpenGameArt</a>
+					</li>
+				</ul>
+			</div>
+			<div class="spolieralert game-font">
+				Cheat Code: &uarr;&uarr;&darr;&darr;&larr;&rarr;&larr;&rarr;BA&lt;space&gt;&lt;ent&gt;
+			</div>
 		</div>
 	</body>
 </html>

@@ -30,6 +30,11 @@
 		 */
 	var GAME = {
 			/**
+			 * Is the user a filthy cheater.
+			 */
+			dirty_rotten_cheater: false,
+
+			/**
 			 *	Game width.
 			 */
 			width: 700,
@@ -178,7 +183,9 @@
 	//  Player
 	//------------------------------
 
-		extra_scores = 1,
+		is_fading = false,
+		pending_fades = [],
+		extra_scores = 0,
 
 		player_state = {
 			/**
@@ -764,6 +771,8 @@
 		 */
 		GAME.player = Crafty.e("2D, DOM, squirrel, gravity, controls, twoway, collision, animate, score, persist, hit, player");
 
+		GAME.cheatcode = [];
+
 		/**
 		 *	Configure the player.
 		 */
@@ -795,7 +804,46 @@
 					return;
 				}
 
-				var burp;
+				var burp, ccl = GAME.cheatcode.length;
+
+				if (!GAME.initialized && !GAME.dirty_rotten_cheater) {
+					if (ccl < 2 &&
+							event.keyCode === Crafty.keys.UA) {
+						GAME.cheatcode.push("up");
+					} else if (ccl >= 2 && ccl < 4 &&
+							event.keyCode === Crafty.keys.DA) {
+						GAME.cheatcode.push("down");
+					} else if (ccl === 4 &&
+							event.keyCode === Crafty.keys.LA) {
+						GAME.cheatcode.push("left");
+					} else if (ccl === 5 &&
+							event.keyCode === Crafty.keys.RA) {
+						GAME.cheatcode.push("right");
+					} else if (ccl === 6 &&
+							event.keyCode === Crafty.keys.LA) {
+						GAME.cheatcode.push("left");
+					} else if (ccl === 7 &&
+							event.keyCode === Crafty.keys.RA) {
+						GAME.cheatcode.push("right");
+					} else if (ccl === 8 &&
+							event.keyCode === Crafty.keys.B) {
+						GAME.cheatcode.push("b");
+					} else if (ccl === 9 &&
+							event.keyCode === Crafty.keys.A) {
+						GAME.cheatcode.push("a");
+					} else if (ccl === 10 &&
+							event.keyCode === Crafty.keys.SP) {
+						GAME.cheatcode.push("select");
+					} else if (ccl === 11 &&
+							event.keyCode === Crafty.keys.ENT) {
+						fade($("#cheater-cheater-pumpkin-eater"));
+						GAME.dirty_rotten_cheater = true;
+						GAME.max_nom_nom = 100;
+						$("#max-nom").text(GAME.max_nom_nom);
+					} else {
+						GAME.cheatcode = [];
+					}
+				}
 
 				switch (event.keyCode) {
 
@@ -832,6 +880,12 @@
 					}
 					break;
 
+				case Crafty.keys.E:
+					if (this.hit("hometree") && GAME.timer === undefined) {
+						timeUp();
+					}
+					break;
+
 				case Crafty.keys.D:
 				case Crafty.keys.RA:
 					if (this.facing !== FACING.right) {
@@ -853,7 +907,6 @@
 					this.facing = FACING.forward;
 					this.sprite.apply(this, sprite.forward_rest);
 					break;
-
 				}
 			})
 
@@ -1187,24 +1240,40 @@
 		return acorn_data;
 	}
 
-	function increaseNomNom() {
+	function increaseNomNom(base) {
 		var title = $("#bonus-capacity"),
-			base = Math.floor(GAME.player._score / 50),
 			increase = (base - extra_scores);
 		extra_scores += increase;
 		$("#earned-nuts").text(increase * 5);
 		GAME.max_nom_nom += increase * 5;
 		$("#max-nom").text(GAME.max_nom_nom);
-		title.fadeIn(750, function () {
-			title.fadeOut(2500);
-		});
+		fade(title);
+	}
+
+	function fade(title) {
+		if (!is_fading) {
+			is_fading = true;
+			title.fadeIn(750, function () {
+				is_fading = false;
+				title.fadeOut(2500);
+				processPendingFades();
+			});
+		} else {
+			pending_fades.push(title);
+		}
+	}
+
+	function processPendingFades() {
+		if (pending_fades.length > 0) {
+			fade(pending_fades.shift());
+		}
 	}
 
 	/**
 	 *	Generate the home tree.
 	 */
 	function generateHome() {
-		Crafty.e("2D, DOM, image, hit, collision")
+		Crafty.e("2D, DOM, image, hit, collision, hometree")
 			.attr({
 				x: (GAME.width / 2) - 85,
 				y: GAME.floor - 150,
@@ -1216,8 +1285,9 @@
 			.onhit("player", function () {
 				if (GAME.player.cheeks > 0) {
 					GAME.player.incrementScore(GAME.player.cheeks);
-					if (extra_scores < GAME.player._score / 50) {
-						increaseNomNom();
+					var score_mod = Math.floor(GAME.player._score / 50);
+					if (score_mod >= 1 && extra_scores < score_mod) {
+						increaseNomNom(score_mod);
 					}
 					$("#score").text(GAME.player._score);
 					clearCheeks();
@@ -1279,7 +1349,7 @@
 			x = 10;
 		}
 
-		Crafty.e("2D, hit, collision")//@debug: DOM,color
+		Crafty.e("2D, hit, collision")//debug, DOM, color")
 			.attr({
 				x: x - 10,
 				y: y || -400,
@@ -1381,11 +1451,12 @@
 
 		var title = $("#season-title-" + season);
 
-		title.fadeIn(750, function () {
-			title.fadeOut(2500);
-		});
+		fade(title);
 
-		if (season === "winter") {
+		if (season === "infinite") {
+			GAME.season = "spring";
+			return;
+		} else if (season === "winter") {
 			setTimeout(function (){snowStorm.toggleSnow();}, 0);
 		} else {
 			setTimeout(function () {
@@ -1448,6 +1519,7 @@
 			snowStorm.toggleSnow();
 		}
 
+		$("#tree-exit").hide();
 		resetPlayer();
 
 		Crafty.scene("title");
@@ -1493,16 +1565,19 @@
 		CONSUMED = {};
 		UID = 0;
 
-		GAME.timer = "#timer";
-
-		$(GAME.timer).clock({
-			mode: $.clock.modes.countdown,
-			offset: {
-				seconds: time
-			},
-			format: "p:s",
-			tare: true
-		}).bind("timer", timeUp).show();
+		if (time !== undefined) {
+			GAME.timer = "#timer";
+			$(GAME.timer).clock({
+				mode: $.clock.modes.countdown,
+				offset: {
+					seconds: time
+				},
+				format: "p:s",
+				tare: true
+			}).bind("timer", timeUp).show();
+		} else {
+			GAME.timer = undefined;
+		}
 
 		GAME.home_tree_scene = "home";
 		SCENE_DEFINITION[CURRENT_SCENE] = generateScene(true);
@@ -1517,6 +1592,9 @@
 		renderScene(SCENE_DEFINITION[CURRENT_SCENE]);
 
 		generateHome();
+		if (GAME.timer === undefined) {
+			$("#tree-exit").show();
+		}
 		generateSceneProgression(0, "generic", "right", true);
 		generateSceneProgression(GAME.width, "generic", "left", true);
 	}
@@ -1530,10 +1608,10 @@
 	 *
 	 *	@param y	The vertical position
 	 */
-	function positionLoseAcorn(min, max, y) {
+	function positionLoseAcorn(min, max, y, x) {
 		return {
 				uid: UID++,
-				x: Crafty.randRange(min, max),
+				x: x || Crafty.randRange(min, max),
 				y: y,
 				gravity: true
 			}
@@ -1561,21 +1639,24 @@
 				burrow: undefined
 			};
 
+		var tree_index = 0,
+			tree_location,
+			acorn_index = 0,
+			platform_index = 0,
+			platform_location,
+			platform_bonus;
+
+		if (GAME.dirty_rotten_cheater) {
+			scene.coffee.push({x: 50, y: 20, uid: UID++}, {x: GAME.width - 50, y: 20, uid: UID++});
+			scene.burrow = {x: Crafty.randRange(80, GAME.width - 80)};
+			for (; acorn_index < ((GAME.width - 60) / 45); acorn_index++) {
+				scene.acorns.push(positionLoseAcorn(null, null, 20, acorn_index * 45));
+			}
+		}
+
 		if (Boolean(empty)) {
 			return scene;
 		}
-
-		var tree_index = 0,
-
-			tree_location,
-
-			acorn_index = 0,
-
-			platform_index = 0,
-
-			platform_location,
-
-			platform_bonus;
 
 		for (; tree_index <= Crafty.randRange(1, 6); tree_index++) {
 			tree_location = Crafty.randRange(100, GAME.width - 100);
@@ -1584,45 +1665,47 @@
 			scene.acorns = scene.acorns.concat(generateTree(tree_location, true, GAME.season, true));
 		}
 
-		for (; acorn_index < Crafty.randRange(2, 15); acorn_index++) {
-			scene.acorns.push(positionLoseAcorn(60, GAME.width - 60, 40));
-		}
-
-		for (; platform_index < Crafty.randRange(2, 4); platform_index++) {
-			platform_location = {
-				w: Crafty.randRange(75, 250),
-				x: undefined,
-				y: Crafty.randRange(30, 300)
-			};
-
-			platform_location.x = Crafty.randRange(20, GAME.width - platform_location.w);
-
-			platform_bonus = Crafty.randRange(0, 100);
-
-			if (platform_bonus < 15) {
-				scene.piles.push({
-					x: Crafty.randRange(platform_location.x, platform_location.x + platform_location.w - 27),
-					y: platform_location.y,
-					uid: UID++
-				});
-			} else if (platform_bonus < 30) {
-				scene.coffee.push({
-					x: Crafty.randRange(platform_location.x, platform_location.x + platform_location.w - 24),
-					y: platform_location.y,
-					uid: UID++
-				});
-			} else if (platform_bonus < 45) {
-				scene.golden.push({
-					x: Crafty.randRange(platform_location.x, platform_location.x + platform_location.w - 10),
-					y: platform_location.y,
-					uid: UID++
-				});
-			} else if (platform_bonus < 60) {
-				scene.acorns.push(positionLoseAcorn(platform_location.x, platform_location.x + platform_location.w, platform_location.y - 20));
-				scene.acorns.push(positionLoseAcorn(platform_location.x, platform_location.x + platform_location.w, platform_location.y - 20));
+		if (!GAME.dirty_rotten_cheater) {
+			for (; acorn_index < Crafty.randRange(2, 15); acorn_index++) {
+				scene.acorns.push(positionLoseAcorn(60, GAME.width - 60, 40));
 			}
 
-			scene.platforms.push(platform_location);
+			for (; platform_index < Crafty.randRange(2, 4); platform_index++) {
+				platform_location = {
+					w: Crafty.randRange(75, 250),
+					x: undefined,
+					y: Crafty.randRange(30, 300)
+				};
+
+				platform_location.x = Crafty.randRange(20, GAME.width - platform_location.w);
+
+				platform_bonus = Crafty.randRange(0, 100);
+
+				if (platform_bonus < 15) {
+					scene.piles.push({
+						x: Crafty.randRange(platform_location.x, platform_location.x + platform_location.w - 27),
+						y: platform_location.y,
+						uid: UID++
+					});
+				} else if (platform_bonus < 30) {
+					scene.coffee.push({
+						x: Crafty.randRange(platform_location.x, platform_location.x + platform_location.w - 24),
+						y: platform_location.y,
+						uid: UID++
+					});
+				} else if (platform_bonus < 45) {
+					scene.golden.push({
+						x: Crafty.randRange(platform_location.x, platform_location.x + platform_location.w - 10),
+						y: platform_location.y,
+						uid: UID++
+					});
+				} else if (platform_bonus < 60) {
+					scene.acorns.push(positionLoseAcorn(platform_location.x, platform_location.x + platform_location.w, platform_location.y - 20));
+					scene.acorns.push(positionLoseAcorn(platform_location.x, platform_location.x + platform_location.w, platform_location.y - 20));
+				}
+
+				scene.platforms.push(platform_location);
+			}
 		}
 
 		//	25% chance to generate a burrow
@@ -1665,6 +1748,7 @@
 	 *	@param scene	The scene object to render.
 	 */
 	function renderScene(scene) {
+		$("#tree-exit").hide();
 		var acorn_data = [];
 
 		$.each(scene.trees, function (index, tree) {
@@ -1726,7 +1810,7 @@
 
 		//	Reset game
 		$("#acorn-meter, #golden-acorn-meter, #coffee-meter, #timer, #om-nom-bar").hide();
-		GAME.max_nom_nom = 25;
+		GAME.max_nom_nom = GAME.dirty_rotten_cheater ? 100 : GAME.base_nom_nom;
 		$("#max-nom").text(GAME.max_nom_nom);
 		GAME.player.cheeks = 0;
 		$("#score").hide().text(0);
@@ -1744,6 +1828,7 @@
 		generateScreenBarrier();
 
 		generatePlatform(125, 0, 125);
+		generateSceneProgression(12, "infinite", "tree", false, GAME.floor - 275, 125);
 
 		generatePlatform(GAME.width - 200, 200, 50);
 		generatePlatform(GAME.width - 300, 300, 125);
@@ -1775,6 +1860,9 @@
 		}
 
 		renderScene(SCENE_DEFINITION[CURRENT_SCENE]);
+		if (GAME.timer === undefined) {
+			$("#tree-exit").show();
+		}
 	});
 
 	Crafty.scene("generic", function () {
@@ -1925,6 +2013,11 @@
 		} else {
 			$("#introduction-burrow").show();
 		}
+	});
+
+	Crafty.scene("infinite", function () {
+		setSeason("infinite");
+		initializeGame();
 	});
 
 	Crafty.scene("spring", function () {
