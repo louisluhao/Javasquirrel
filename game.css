@@ -22,6 +22,17 @@
 /*  User Interface
 ----------------------------------*/
 
+#om-nom-bar {
+	display: none;
+	position: absolute;
+	right: 0px;
+	width: 120px;
+	text-align: center;
+	top: 15px;
+	z-index: 500;
+	text-shadow: #666 4px 4px 3px;
+}
+
 #score
 	{ position: absolute; height: 110px; width: 90px; top: 5px; left: 5px; background: url(images/acorn-badge.png) no-repeat center center; font-weight: bold; font-size: 26px; line-height: 140px; text-align: center; color: #FFF; display: none; }
 	
@@ -43,6 +54,26 @@
 	
 #end-screen
 	{ text-align: center; }
+
+@-webkit-keyframes pulse_animation {
+	0% { -webkit-transform: scale(1); }
+	30% { -webkit-transform: scale(1); }
+	40% { -webkit-transform: scale(1.08); }
+	50% { -webkit-transform: scale(1); }
+	60% { -webkit-transform: scale(1); }
+	70% { -webkit-transform: scale(1.05); }
+	80% { -webkit-transform: scale(1); }
+	100% { -webkit-transform: scale(1); }
+}
+
+.pulse {
+	-webkit-animation-name: 'pulse_animation';
+	-webkit-animation-duration: 5000ms;
+	-webkit-transform-origin:70% 70%;
+	-webkit-animation-iteration-count: infinite;
+	-webkit-animation-timing-function: linear;
+}
+
 	
 /*  Acorn meter
 ----------------------------------*/
@@ -53,6 +84,7 @@
 #acorn-icon-wrapper
 	{ width: 30px; height: 30px; border-radius: 20px; background: #856363; position: absolute; top: 0; left: 0; z-index: 10; }
 	
+
 #acorn-icon-wrapper .acorn-icon
 	{ margin: -2px 0 0 4px; }
 	
@@ -73,9 +105,19 @@
 	
 /*  Golden Acorn meter
 ----------------------------------*/
-	
+.powerup-available {
+	color: #FFF; display: none; text-shadow: #666 4px 4px 3px;
+}
+
+#acorn-meter-burrow {
+	position: absolute; right: 140px; z-index: 150; top: 13px; display: none; text-shadow: #666 4px 4px 3px; color: #FFF;
+}
+
 #golden-acorn-meter
 	{ position: absolute; top: 45px; right: 15px; width: 120px; display: none; opacity: 0.25; }
+
+#golden-meter-powerup
+	{ position: absolute; top: 53px; right: 140px; z-index: 150; }
 	
 #golden-acorn-icon-wrapper
 	{ width: 30px; height: 30px; border-radius: 20px; background: #FFE4B5; position: absolute; top: 0; left: 0; z-index: 10; }
@@ -96,7 +138,10 @@
 ----------------------------------*/
 	
 #coffee-meter
-	{ position: absolute; top: 85px; right: 15px; width: 120px; display: none; opacity: 0.25; }
+	{ position: absolute; top: 85px; right: 15px; width: 120px; display: none; opacity: 0.25; z-index: 100; }
+
+#coffee-meter-powerup
+	{ position: absolute; top: 95px; right: 140px; z-index: 150; }
 	
 #coffee-icon-wrapper
 	{ width: 30px; height: 30px; border-radius: 20px; background: #008B45; position: absolute; top: 0; left: 0; z-index: 10; }

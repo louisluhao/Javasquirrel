@@ -26,15 +26,24 @@
 						</div>
 					</div>
 				</div>
+				<div id="om-nom-bar" class="game-font">
+					<span id="acorn-count">0</span>/<span id="max-nom"></span>
+				</div>
+				<div id="acorn-meter-burrow" class="pulse game-font">
+					Hit Spacebar!
+				</div>
 				<div id="coffee-meter">
-					<div id="coffee-icon-wrapper">
+					<div id="coffee-icon-wrapper" class="coffee-meter-opacity">
 						<div class="coffee-icon"></div>
 					</div>
-					<div id="coffee-progress-wrapper">
+					<div id="coffee-progress-wrapper" class="coffee-meter-opacity">
 						<div id="coffee-progress-bar-wrapper">
 							<div id="coffee-progress-bar"></div>
 						</div>
 					</div>
+				</div>
+				<div id="coffee-meter-powerup" class="powerup-available pulse game-font">
+					Hit C!
 				</div>
 				<div id="golden-acorn-meter">
 					<div id="golden-acorn-icon-wrapper">
@@ -46,6 +55,9 @@
 						</div>
 					</div>
 				</div>
+				<div id="golden-meter-powerup" class="powerup-available game-font pulse">
+					Hit G!
+				</div>
 				<div id="timer" class="game-font"></div>
 				
 				<div id="end-screen" class="onscreen-menu introduction-asset game-font">
@@ -54,9 +66,17 @@
 				</div>
 			</div>
 			<div id="cr-stage" class="game-font">
+				<div id="introduction-noleft" class="onscreen-menu introduction-asset">
+					<div>Once the game starts, you can go either left or right... but this is the introduction! Follow the Next arrows! (Head to the right!)</div>
+				</div>
 				<div id="introduction-tree" class="onscreen-menu introduction-asset">
 					<div class="home-tree-icon"></div>
 					<div>This is your home. It holds your supply of acorns for the coming winter. The goal is to fill your home with as many acorns as possible.</div>
+				</div>
+
+				<div id="bonus-capacity" class="season-title">
+					<h2 class="spring-text">+5 Cheeks!</h2>
+					<h3>OM NOM NOM!</h3>
 				</div>
 				
 				<div id="season-title-spring" class="season-title">
@@ -81,11 +101,15 @@
 				
 				<div id="introduction-acorn" class="onscreen-menu introduction-asset">
 					<div class="acorn-icon"></div>
-					<div>This is an acorn. Collect these and bring them back to your home tree. The acorns in your home tree is your score.</div>
+					<div>This is an acorn. Collect these and bring them back to your home tree. The acorns in your home tree is your score! You gain +5 cheek capacity for every 50 acorns stored in your home!</div>
 				</div>
 				
 				<div id="introduction-acorn-meter" class="onscreen-menu introduction-asset">
-					<div>You collect acorns in your cheeks. The more acorns you're holding, the slower you run. Remember to drop them off at home!</div>
+					<div>You collect acorns in your cheeks. The more acorns you're holding, the slower you run. Remember to drop them off at home! You can also hit &lt;B&gt; to burp up your cheeks full of nuts into a pile!</div>
+				</div>
+
+				<div id="introduction-burp" class="onscreen-menu introduction-asset">
+					<div>BUUUURP!</div>
 				</div>
 				
 				<div id="introduction-buffs" class="onscreen-menu introduction-asset">
@@ -94,17 +118,17 @@
 				
 				<div id="introduction-buff-acorn-pile" class="onscreen-menu introduction-asset">
 					<div class="acorn-pile-icon"></div>
-					<div>Acorn piles fill your cheeks! You can also hit &lt;B&gt; with a mouth full of nuts to drop them into a pile!</div>
+					<div>Acorn piles contain random numbers of nuts!</div>
 				</div>
 				
 				<div id="introduction-buff-golden-acorn" class="onscreen-menu introduction-asset">
 					<div class="golden-acorn-icon"></div>
-					<div>Golden acorns make you jump sky high! Hit &lt;G&gt; with a mouth full of nuts to eat them and create a golden acorn!</div>
+					<div>Golden acorns make you jump sky high! Hit &lt;G&gt; with 15 nuts to eat them and create a golden acorn!</div>
 				</div>
 				
 				<div id="introduction-buff-coffee" class="onscreen-menu introduction-asset">
 					<div class="coffee-icon"></div>
-					<div>Coffee! COFFEE! COFFEE COFFEE COFFEE! ZOOM ZOOM! Hit &lt;C&gt; with a mouth full of nuts to eat them and create coffee!</div>
+					<div>Coffee! COFFEE! COFFEE COFFEE COFFEE! ZOOM ZOOM! Hit &lt;C&gt; with 15 nuts to eat them and create coffee!</div>
 				</div>
 				
 				<div id="introduction-season" class="onscreen-menu introduction-asset">
@@ -113,7 +137,7 @@
 				
 				<div id="introduction-burrow" class="onscreen-menu introduction-asset">
 					<div class="burrow-icon"></div>
-					<div>This is a burrow! These are tunnels leading back to your home tree. Stand on a burrow and hit &lt;Spacebar&gt; to use it.</div>
+					<div>This is a burrow! These are tunnels leading back to your home tree. Stand on a burrow and hit &lt;Spacebar&gt; to use it. You can also turn 25 nuts into a burrow if there isn't one on the screen already!</div>
 				</div>
 				
 				<div id="introduction-burrow-return" class="onscreen-menu introduction-asset">

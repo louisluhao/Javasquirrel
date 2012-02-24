@@ -5,14 +5,14 @@
 				"clock": "current"
 			}
 		},
-		
+
 		"generic": {
 			"style": {
 				"htmlreset": "current"
 			},
-			
+
 			"script": {
-				"crafty": "current",
+				"crafty": "0.3.0",
 				"snowstorm": "current"
 			}
 		}
@@ -22,21 +22,21 @@
 	[
 		"config"
 	],
-	
+
 	"themes": {
     },
-	
+
 	"application": {
 		"scripts":
         [
         	"game"
         ],
-        
+
         "styles":
         [
         	"game"
         ],
-		
+
 		"images":
 		[
 			"acorn-badge.png",
@@ -52,7 +52,7 @@
 			"tree-home.png",
 			"trees.png"
 		],
-		
+
 		"static":
 		[
 			"fav.ico",
