@@ -11,6 +11,16 @@
 		
 		<script type="text/javascript" src="http://use.typekit.com/nix8pmg.js"></script>
 		<script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+		<script type="text/javascript">
+			var _gaq = _gaq || [];
+			_gaq.push(['_setAccount', 'UA-29472012-1']);
+			_gaq.push(['_trackPageview']);
+			(function() {
+				var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+				ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+				var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+			})();
+		</script>
 	</head>
 	<body>
 		<div id="viewport-wrapper">
@@ -75,7 +85,7 @@
 				</div>
 
 				<div id="bonus-capacity" class="season-title">
-					<h2 class="spring-text">+5 Cheeks!</h2>
+					<h2 class="spring-text">+<span id="earned-nuts">5</span> Cheeks!</h2>
 					<h3>OM NOM NOM!</h3>
 				</div>
 				
@@ -168,8 +178,26 @@
 					<div id="summer-title" class="title-text summer-text">Summer &rsaquo;</div>
 					<div id="autumn-title" class="title-text autumn-text">Autumn &rsaquo;</div>
 					<div id="winter-title" class="title-text winter-text">Winter &rsaquo;</div>
+					<div id="infin-title" class="title-text pulse" class="color: #FFF">&lsaquo; &infin;!</div>
 				</div>
 			</div>
+		</div>
+		<div id="footer">
+			<ul class="menu">
+				<li class="active">&copy; 2012 Eric Garside</li>
+				<li class="active">
+					Found a bug? Oh noes! <a href="https://github.com/garside/Javasquirrel/issues">report it</a>!
+				</li>
+				<li class="active">
+					<a href="https://github.com/garside/Javasquirrel">Javasquirrel on Github</a>
+				</li>
+				<li class="active">
+					<a href="http://craftyjs.com/">CraftyJS</a>
+				</li>
+				<li class="active">
+					<a href="http://opengameart.org/">OpenGameArt</a>
+				</li>
+			</ul>
 		</div>
 	</body>
 </html>

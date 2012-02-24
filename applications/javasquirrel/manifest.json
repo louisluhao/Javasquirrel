@@ -34,7 +34,8 @@
 
         "styles":
         [
-        	"game"
+        	"game",
+			"page"
         ],
 
 		"images":

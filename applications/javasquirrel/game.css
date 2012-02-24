@@ -10,6 +10,10 @@
 /*  Viewport
 ----------------------------------*/
 
+body {
+	background: #F5F7F8;
+}
+
 #viewport-wrapper
 	{ width: 700px; height: 400px; margin: 75px auto 0; overflow: hidden; position: relative; }
 	
@@ -212,6 +216,12 @@
 #winter-title
 	{ bottom: 340px; left: 580px; }
 	
+#infin-title {
+	color: #FFF;
+	top: 180px;
+	left: 10px;
+}
+
 .winter-text
 	{ color: #A1C4EE; }
 	

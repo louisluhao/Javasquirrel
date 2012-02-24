@@ -65,6 +65,11 @@
 			initialized: false,
 
 			/**
+			 * The base nom nom capacity.
+			 */
+			base_nom_nom: 25,
+
+			/**
 			 *	The maximum number of acorns to nom at once.
 			 */
 			max_nom_nom: 25,
@@ -506,7 +511,7 @@
 						}
 						destination = "generic";
 					} else {
-						if (CURRENT_SCENE > 1) {
+						if (CURRENT_SCENE > 0) {
 							GAME.right_burrow_destination = CURRENT_SCENE;
 							burrow_at = "right_burrow";
 						} else {
@@ -813,17 +818,18 @@
 					break;
 
 				case Crafty.keys.B:
-					if (SCENE_DEFINITION[CURRENT_SCENE] === undefined) {
-						burp = safeBurp(false);
-					} else {
-						burp = safeBurp(true);
-						SCENE_DEFINITION[CURRENT_SCENE].piles.push(burp);
+					if (this.cheeks > 0) {
+						if (SCENE_DEFINITION[CURRENT_SCENE] === undefined) {
+							burp = safeBurp(false);
+						} else {
+							burp = safeBurp(true);
+							SCENE_DEFINITION[CURRENT_SCENE].piles.push(burp);
+						}
+
+						generateAcornPile(burp.x, burp.y, burp.uid, this.cheeks);
+						clearCheeks();
+						this.trigger("burp");
 					}
-
-					generateAcornPile(burp.x, burp.y, burp.uid, this.cheeks);
-					clearCheeks();
-					this.trigger("burp");
-
 					break;
 
 				case Crafty.keys.D:
@@ -1182,10 +1188,13 @@
 	}
 
 	function increaseNomNom() {
-		extra_scores += 1;
-		GAME.max_nom_nom += 5;
+		var title = $("#bonus-capacity"),
+			base = Math.floor(GAME.player._score / 50),
+			increase = (base - extra_scores);
+		extra_scores += increase;
+		$("#earned-nuts").text(increase * 5);
+		GAME.max_nom_nom += increase * 5;
 		$("#max-nom").text(GAME.max_nom_nom);
-		var title = $("#bonus-capacity");
 		title.fadeIn(750, function () {
 			title.fadeOut(2500);
 		});
@@ -1708,6 +1717,8 @@
 		introduction.enabled = false;
 		GAME.home_tree_scene = undefined;
 		GAME.burrow_destination = undefined;
+		GAME.left_burrow_destination = undefined;
+		GAME.right_burrow_destination = undefined;
 		destroyIntroductionAssets();
 		GAME.over = false;
 		GAME.pause = false;
@@ -1731,6 +1742,8 @@
 		}
 
 		generateScreenBarrier();
+
+		generatePlatform(125, 0, 125);
 
 		generatePlatform(GAME.width - 200, 200, 50);
 		generatePlatform(GAME.width - 300, 300, 125);

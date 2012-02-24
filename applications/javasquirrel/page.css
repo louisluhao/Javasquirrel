@@ -1,0 +1,29 @@
+#footer {
+	width: 700px;
+	margin: 40px auto 0;
+	border-top: 1px solid #4C5252;
+	padding: 10px 130px 0;
+	font: 10px Verdana;
+	color: #4C5252;
+}
+
+a {
+	font: 10px Verdana;
+	color: #4C5252;
+}
+
+/*  Menu
+----------------------------------*/
+.menu .active + .active {
+	margin-left: 10px;
+	padding-left: 10px;
+	border-left: 1px solid #90A09F;
+}
+
+.menu li {
+	float: left;
+}
+
+.menu .inactive {
+	display: none;
+}
