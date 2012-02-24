@@ -68,6 +68,9 @@
 			"images/tile-ground.png",
 			"images/tree-home.png",
 			"images/trees.png"
+		],
+		"root": [
+			"app.yaml"
 		]
 	}
 }

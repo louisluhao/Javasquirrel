@@ -1,6 +1,6 @@
 {
 	"applications": {
-		"javasquirrel": "__index__"
+		"javasquirrel": "static"
 	},
 	"build_mode": "single",
 	"hosted-on": "https://raw.github.com/garside/Javasquirrel/gh-pages"
