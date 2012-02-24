@@ -1,15 +1,15 @@
 __CONFIG = {};__SDK = {"__release__": true};
 __CONFIG.images = {
-	trees: "__static__/images/trees.png",
-	ground: "__static__/images/tile-ground.png",
-	squirrel: "__static__/images/squirrel.png",
-	acorn: "__static__/images/acorn.png",
-	acorn_pile: "__static__/images/acorn-pile.png",
-	golden_acorn: "__static__/images/golden-acorn.png",
-	coffee_cup: "__static__/images/coffee-cup.png",
-	home_tree: "__static__/images/tree-home.png",
-	burrow: "__static__/images/burrow.png",
-	background: "__static__/images/background.jpg"
+	trees: "https://raw.github.com/garside/Javasquirrel/gh-pages/__static__/images/trees.png",
+	ground: "https://raw.github.com/garside/Javasquirrel/gh-pages/__static__/images/tile-ground.png",
+	squirrel: "https://raw.github.com/garside/Javasquirrel/gh-pages/__static__/images/squirrel.png",
+	acorn: "https://raw.github.com/garside/Javasquirrel/gh-pages/__static__/images/acorn.png",
+	acorn_pile: "https://raw.github.com/garside/Javasquirrel/gh-pages/__static__/images/acorn-pile.png",
+	golden_acorn: "https://raw.github.com/garside/Javasquirrel/gh-pages/__static__/images/golden-acorn.png",
+	coffee_cup: "https://raw.github.com/garside/Javasquirrel/gh-pages/__static__/images/coffee-cup.png",
+	home_tree: "https://raw.github.com/garside/Javasquirrel/gh-pages/__static__/images/tree-home.png",
+	burrow: "https://raw.github.com/garside/Javasquirrel/gh-pages/__static__/images/burrow.png",
+	background: "https://raw.github.com/garside/Javasquirrel/gh-pages/__static__/images/background.jpg"
 };
 (function(z,w){function ma(){if(!c.isReady){try{s.documentElement.doScroll("left")}catch(a){setTimeout(ma,1);return}c.ready()}}function Pa(a,b){b.src?c.ajax({url:b.src,async:false,dataType:"script"}):c.globalEval(b.text||b.textContent||b.innerHTML||"");b.parentNode&&b.parentNode.removeChild(b)}function X(a,b,d,e,f,h){var i=a.length;if(typeof b==="object"){for(var n in b)X(a,n,b[n],e,f,d);return a}if(d!==w){e=!h&&e&&c.isFunction(d);for(n=0;n<i;n++)f(a[n],b,e?d.call(a[n],n,f(a[n],b)):d,h);return a}return i?
 f(a[0],b):w}function J(){return(new Date).getTime()}function Y(){return false}function Z(){return true}function na(a,b,d){d[0].type=a;return c.event.handle.apply(b,d)}function oa(a){var b,d=[],e=[],f=arguments,h,i,n,k,o,r;i=c.data(this,"events");if(!(a.liveFired===this||!i||!i.live||a.button&&a.type==="click")){a.liveFired=this;var x=i.live.slice(0);for(k=0;k<x.length;k++){i=x[k];i.origType.replace(O,"")===a.type?e.push(i.selector):x.splice(k--,1)}h=c(a.target).closest(e,a.currentTarget);o=0;for(r=
