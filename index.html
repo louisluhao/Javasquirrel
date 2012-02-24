@@ -1,0 +1,153 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<title>Java Squirrel</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="shortcut icon" type="image/ico" href="__static__/fav.ico" />
+
+
+
+<script type="text/javascript" src="http://use.typekit.com/nix8pmg.js"></script>
+<script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+<link media="screen, print" rel="stylesheet" type="text/css" href="http://garside.github.com/Javasquirrel///__application__/__styles__.css?_=1330044551.69" /><script type="text/javascript" src="http://garside.github.com/Javasquirrel///__application__/__script__.js?_=1330044551.69"></script></head>
+<body>
+<div id="viewport-wrapper">
+<div id="ui">
+<div id="score" class="game-font">0</div>
+<div id="acorn-meter">
+<div id="acorn-icon-wrapper">
+<div class="acorn-icon"></div>
+</div>
+<div id="acorn-progress-wrapper">
+<div id="acorn-progress-bar-wrapper">
+<div id="acorn-progress-bar"></div>
+</div>
+</div>
+</div>
+<div id="om-nom-bar" class="game-font">
+<span id="acorn-count">0</span>/<span id="max-nom"></span>
+</div>
+<div id="acorn-meter-burrow" class="pulse game-font">
+					Hit Spacebar!
+				</div>
+<div id="coffee-meter">
+<div id="coffee-icon-wrapper" class="coffee-meter-opacity">
+<div class="coffee-icon"></div>
+</div>
+<div id="coffee-progress-wrapper" class="coffee-meter-opacity">
+<div id="coffee-progress-bar-wrapper">
+<div id="coffee-progress-bar"></div>
+</div>
+</div>
+</div>
+<div id="coffee-meter-powerup" class="powerup-available pulse game-font">
+					Hit C!
+				</div>
+<div id="golden-acorn-meter">
+<div id="golden-acorn-icon-wrapper">
+<div class="golden-acorn-icon"></div>
+</div>
+<div id="golden-acorn-progress-wrapper">
+<div id="golden-acorn-progress-bar-wrapper">
+<div id="golden-acorn-progress-bar"></div>
+</div>
+</div>
+</div>
+<div id="golden-meter-powerup" class="powerup-available game-font pulse">
+					Hit G!
+				</div>
+<div id="timer" class="game-font"></div>
+<div id="end-screen" class="onscreen-menu introduction-asset game-font">
+<div>You stored <span id="total-score"></span> acorns.</div>
+<div id="restart-game">Hit Enter to Play Again!</div>
+</div>
+</div>
+<div id="cr-stage" class="game-font">
+<div id="introduction-noleft" class="onscreen-menu introduction-asset">
+<div>Once the game starts, you can go either left or right... but this is the introduction! Follow the Next arrows! (Head to the right!)</div>
+</div>
+<div id="introduction-tree" class="onscreen-menu introduction-asset">
+<div class="home-tree-icon"></div>
+<div>This is your home. It holds your supply of acorns for the coming winter. The goal is to fill your home with as many acorns as possible.</div>
+</div>
+<div id="bonus-capacity" class="season-title">
+<h2 class="spring-text">+5 Cheeks!</h2>
+<h3>OM NOM NOM!</h3>
+</div>
+<div id="season-title-spring" class="season-title">
+<h2 class="spring-text">Spring</h2>
+<h3>6 minutes remaining</h3>
+</div>
+<div id="season-title-summer" class="season-title">
+<h2 class="summer-text">Summer</h2>
+<h3>4.5 minutes remaining</h3>
+</div>
+<div id="season-title-autumn" class="season-title">
+<h2 class="autumn-text">Autumn</h2>
+<h3>3 minutes remaining</h3>
+</div>
+<div id="season-title-winter" class="season-title">
+<h2 class="winter-text">Winter</h2>
+<h3>90 seconds remaining</h3>
+</div>
+<div id="introduction-acorn" class="onscreen-menu introduction-asset">
+<div class="acorn-icon"></div>
+<div>This is an acorn. Collect these and bring them back to your home tree. The acorns in your home tree is your score! You gain +5 cheek capacity for every 50 acorns stored in your home!</div>
+</div>
+<div id="introduction-acorn-meter" class="onscreen-menu introduction-asset">
+<div>You collect acorns in your cheeks. The more acorns you're holding, the slower you run. Remember to drop them off at home! You can also hit &lt;B&gt; to burp up your cheeks full of nuts into a pile!</div>
+</div>
+<div id="introduction-burp" class="onscreen-menu introduction-asset">
+<div>BUUUURP!</div>
+</div>
+<div id="introduction-buffs" class="onscreen-menu introduction-asset">
+<div>There are also special power up items!</div>
+</div>
+<div id="introduction-buff-acorn-pile" class="onscreen-menu introduction-asset">
+<div class="acorn-pile-icon"></div>
+<div>Acorn piles contain random numbers of nuts!</div>
+</div>
+<div id="introduction-buff-golden-acorn" class="onscreen-menu introduction-asset">
+<div class="golden-acorn-icon"></div>
+<div>Golden acorns make you jump sky high! Hit &lt;G&gt; with 15 nuts to eat them and create a golden acorn!</div>
+</div>
+<div id="introduction-buff-coffee" class="onscreen-menu introduction-asset">
+<div class="coffee-icon"></div>
+<div>Coffee! COFFEE! COFFEE COFFEE COFFEE! ZOOM ZOOM! Hit &lt;C&gt; with 15 nuts to eat them and create coffee!</div>
+</div>
+<div id="introduction-season" class="onscreen-menu introduction-asset">
+<div>To begin the game, you choose a season.</div>
+</div>
+<div id="introduction-burrow" class="onscreen-menu introduction-asset">
+<div class="burrow-icon"></div>
+<div>This is a burrow! These are tunnels leading back to your home tree. Stand on a burrow and hit &lt;Spacebar&gt; to use it. You can also turn 25 nuts into a burrow if there isn't one on the screen already!</div>
+</div>
+<div id="introduction-burrow-return" class="onscreen-menu introduction-asset">
+<div class="burrow-icon"></div>
+<div>After using a burrow, one will appear near your home tree. Stand on the burrow and hit &lt;Spacebar&gt; to return to the last used burrow.</div>
+</div>
+<div id="introduction-done" class="onscreen-menu introduction-asset">
+<div>HAPPY OM NOM NOMING!</div>
+<div id="omnom"></div>
+</div>
+<ul id="introduction-season-times" class="introduction-asset ui-helper-clearfix">
+<li class="spring-text">Spring 6m</li>
+<li class="summer-text">Summer 4.5m</li>
+<li class="autumn-text">Autumn 3m</li>
+<li class="winter-text">Winter 90s</li>
+</ul>
+<div id="introduction-prev" class="title-text introduction-asset">&lsaquo; Previous</div>
+<div id="introduction-next" class="title-text introduction-asset">Next &rsaquo;</div>
+<div id="introduction-start" class="title-text introduction-asset">Start game &rsaquo;</div>
+<div id="title-screen">
+<h1 id="game-title">JavaSquirrel</h1>
+<div id="tutorial-title" class="title-text">Introduction &rsaquo;</div>
+<div id="spring-title" class="title-text spring-text">Spring &rsaquo;</div>
+<div id="summer-title" class="title-text summer-text">Summer &rsaquo;</div>
+<div id="autumn-title" class="title-text autumn-text">Autumn &rsaquo;</div>
+<div id="winter-title" class="title-text winter-text">Winter &rsaquo;</div>
+</div>
+</div>
+</div>
+</body>
+</html>
